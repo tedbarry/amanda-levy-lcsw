@@ -138,6 +138,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ========== Back to Top Button ==========
+  const backToTop = document.getElementById('back-to-top');
+
+  if (backToTop) {
+    const toggleBackToTop = () => {
+      if (window.scrollY > 400) {
+        backToTop.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+        backToTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      } else {
+        backToTop.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        backToTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      }
+    };
+
+    window.addEventListener('scroll', toggleBackToTop, { passive: true });
+
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // ========== Sticky Mobile CTA Bar ==========
+  const mobileCta = document.getElementById('mobile-cta');
+
+  if (mobileCta) {
+    const toggleMobileCta = () => {
+      if (window.scrollY > 600) {
+        mobileCta.classList.remove('translate-y-full');
+        mobileCta.classList.add('translate-y-0');
+      } else {
+        mobileCta.classList.add('translate-y-full');
+        mobileCta.classList.remove('translate-y-0');
+      }
+    };
+
+    window.addEventListener('scroll', toggleMobileCta, { passive: true });
+  }
+
   // ========== Scroll Reveal Animation ==========
   const revealElements = document.querySelectorAll(
     '.specialty-card, .expertise-group, .faq-item'

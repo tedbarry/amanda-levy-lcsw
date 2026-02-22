@@ -266,14 +266,58 @@ textarea:focus-visible {
 
 /* ========== Print Styles ========== */
 @media print {
-  nav, .specialty-card:hover, footer {
+  /* Hide interactive/non-printable elements */
+  nav,
+  #back-to-top,
+  #mobile-cta,
+  #contact-form button[type="submit"],
+  .mobile-nav-link {
+    display: none !important;
+  }
+
+  /* Remove decorative effects */
+  .specialty-card, footer {
     box-shadow: none !important;
     transform: none !important;
   }
 
+  /* Expand all FAQ answers */
   .faq-answer {
     max-height: none !important;
     padding: 0 1.5rem 1rem !important;
+    overflow: visible !important;
+  }
+
+  .faq-chevron {
+    display: none !important;
+  }
+
+  /* Show URLs for links */
+  a[href^="tel:"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  a[href^="mailto:"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Remove background colors for ink saving */
+  body, section, .bg-sage-50, .bg-cream-50 {
+    background: white !important;
+  }
+
+  /* Ensure content doesn't break across pages poorly */
+  .specialty-card, .expertise-group, .faq-item {
+    break-inside: avoid;
+  }
+
+  /* Add top margin since nav is hidden */
+  #home {
+    padding-top: 1rem !important;
   }
 }
 
