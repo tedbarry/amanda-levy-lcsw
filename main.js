@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scYesCount >= 3) {
       scResultText.textContent = "It sounds like talking to someone could really help. You don\u2019t have to go through this alone. Amanda offers a free 15-minute consultation to discuss what you\u2019re going through \u2014 no pressure, no obligation.";
     } else if (scYesCount >= 1) {
-      scResultText.textContent = "Even small challenges deserve support. Therapy can help you build skills and gain perspective before things feel bigger. Amanda is here to listen whenever you\u2019re ready.";
+      scResultText.textContent = "Whatever you\u2019re going through matters, and you deserve to feel heard. Therapy is a space to explore your feelings at your own pace. Amanda offers a free 15-minute consultation whenever you\u2019re ready \u2014 no pressure at all.";
     } else {
       scResultText.textContent = "It\u2019s great that things feel manageable right now. If that ever changes, know that reaching out for support is always a sign of strength, not weakness. Amanda is here whenever you need her.";
     }
