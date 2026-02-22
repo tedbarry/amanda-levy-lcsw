@@ -179,12 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ========== Contact Form ==========
+  // ========== Contact Form (Formspree AJAX) ==========
   const form = document.getElementById('contact-form');
   const successMsg = document.getElementById('form-success');
+  const errorMsg = document.getElementById('form-error');
+  const submitBtn = document.getElementById('form-submit-btn');
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = form.querySelector('#name').value.trim();
@@ -192,28 +194,187 @@ document.addEventListener('DOMContentLoaded', () => {
       const message = form.querySelector('#message').value.trim();
 
       // Basic validation
-      if (!name || !email || !message) {
-        return;
-      }
+      if (!name || !email || !message) return;
 
-      // Build mailto link as fallback (no backend)
-      const subject = encodeURIComponent('New Message from ' + name);
-      const body = encodeURIComponent(
-        'Name: ' + name + '\n' +
-        'Email: ' + email + '\n\n' +
-        'Message:\n' + message
-      );
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
 
-      window.location.href = 'mailto:amandalevylcsw@gmail.com?subject=' + subject + '&body=' + body;
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
 
-      // Show success message
-      successMsg.classList.remove('hidden');
-      form.reset();
-
-      // Hide success message after 8 seconds
-      setTimeout(() => {
+        if (response.ok) {
+          successMsg.classList.remove('hidden');
+          errorMsg.classList.add('hidden');
+          form.reset();
+          setTimeout(() => successMsg.classList.add('hidden'), 8000);
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (err) {
+        errorMsg.classList.remove('hidden');
         successMsg.classList.add('hidden');
-      }, 8000);
+        setTimeout(() => errorMsg.classList.add('hidden'), 8000);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    });
+  }
+
+  // ========== Quote Rotator ==========
+  const quoteSlides = document.querySelectorAll('.quote-slide');
+  const quoteDots = document.querySelectorAll('.quote-dot');
+  let currentQuote = 0;
+  let quoteInterval;
+
+  function showQuote(index) {
+    quoteSlides.forEach((s, i) => {
+      s.classList.toggle('active', i === index);
+    });
+    quoteDots.forEach((d, i) => {
+      d.classList.toggle('active', i === index);
+      d.style.backgroundColor = i === index ? '' : '';
+    });
+    currentQuote = index;
+  }
+
+  function nextQuote() {
+    showQuote((currentQuote + 1) % quoteSlides.length);
+  }
+
+  if (quoteSlides.length > 1) {
+    quoteInterval = setInterval(nextQuote, 6000);
+
+    // Click dots to navigate
+    quoteDots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        clearInterval(quoteInterval);
+        showQuote(i);
+        quoteInterval = setInterval(nextQuote, 6000);
+      });
+    });
+  }
+
+  // ========== Social Proof Animated Counters ==========
+  const counterElements = document.querySelectorAll('[data-target]');
+
+  function animateCounter(el) {
+    const target = parseInt(el.getAttribute('data-target'));
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 2000;
+    const start = 0;
+    const startTime = performance.now();
+
+    function update(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(start + (target - start) * eased);
+
+      // Format: for 1000, show "1,000"
+      el.textContent = current.toLocaleString() + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  if (counterElements.length && 'IntersectionObserver' in window) {
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counterElements.forEach(el => counterObserver.observe(el));
+  }
+
+  // ========== Parallax Hero Shapes ==========
+  const shapes = document.querySelectorAll('.parallax-shape');
+
+  if (shapes.length) {
+    const parallaxSpeeds = [0.03, 0.02, 0.015];
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      shapes.forEach((shape, i) => {
+        const speed = parallaxSpeeds[i] || 0.02;
+        shape.style.transform = `translateY(${scrollY * speed}px)`;
+      });
+    }, { passive: true });
+  }
+
+  // ========== "Is Therapy Right For Me?" Self-Check ==========
+  const scQuestions = document.querySelectorAll('.sc-question');
+  const scProgress = document.getElementById('sc-progress');
+  const scProgressText = document.getElementById('sc-progress-text');
+  const scResult = document.getElementById('sc-result');
+  const scResultText = document.getElementById('sc-result-text');
+  const scRestart = document.getElementById('sc-restart');
+  let scCurrent = 0;
+  let scYesCount = 0;
+
+  function scShowQuestion(index) {
+    scQuestions.forEach((q, i) => {
+      q.classList.toggle('active', i === index);
+    });
+    const pct = (index / scQuestions.length) * 100;
+    if (scProgress) scProgress.style.width = pct + '%';
+    if (scProgressText) scProgressText.textContent = `Question ${index + 1} of ${scQuestions.length}`;
+  }
+
+  function scShowResult() {
+    // Hide questions and progress
+    scQuestions.forEach(q => q.classList.remove('active'));
+    if (scProgress) scProgress.style.width = '100%';
+    if (scProgressText) scProgressText.textContent = 'Complete';
+
+    // Show result
+    if (scResult) scResult.classList.remove('hidden');
+
+    if (scYesCount >= 3) {
+      scResultText.textContent = "It sounds like talking to someone could really help. You don\u2019t have to go through this alone. Amanda offers a free 15-minute consultation to discuss what you\u2019re going through \u2014 no pressure, no obligation.";
+    } else if (scYesCount >= 1) {
+      scResultText.textContent = "Even small challenges deserve support. Therapy can help you build skills and gain perspective before things feel bigger. Amanda is here to listen whenever you\u2019re ready.";
+    } else {
+      scResultText.textContent = "It\u2019s great that things feel manageable right now. If that ever changes, know that reaching out for support is always a sign of strength, not weakness. Amanda is here whenever you need her.";
+    }
+  }
+
+  // Attach click handlers to all self-check buttons
+  document.querySelectorAll('.sc-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.getAttribute('data-answer') === 'yes') scYesCount++;
+      scCurrent++;
+
+      if (scCurrent >= scQuestions.length) {
+        scShowResult();
+      } else {
+        scShowQuestion(scCurrent);
+      }
+    });
+  });
+
+  // Restart
+  if (scRestart) {
+    scRestart.addEventListener('click', () => {
+      scCurrent = 0;
+      scYesCount = 0;
+      scResult.classList.add('hidden');
+      scShowQuestion(0);
     });
   }
 
@@ -257,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== Scroll Reveal Animation ==========
   const revealElements = document.querySelectorAll(
-    '.specialty-card, .expertise-group, .faq-item'
+    '.specialty-card, .expertise-group, .faq-item, .timeline-step, .counter-item, .insurance-step'
   );
 
   if ('IntersectionObserver' in window) {
