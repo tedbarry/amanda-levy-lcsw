@@ -100,6 +100,85 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ========== Therapeutic Approach Details ==========
+  const approachData = {
+    'family-systems': {
+      title: 'Family Systems Therapy',
+      desc: 'Family Systems therapy views individuals as part of an interconnected family unit. Rather than focusing on one person in isolation, this approach explores how family dynamics, communication patterns, and relationships influence each member. It helps families understand how changes in one part of the system affect everyone, and works toward healthier patterns of interaction and support.'
+    },
+    'cbt': {
+      title: 'Cognitive Behavioral Therapy (CBT)',
+      desc: 'CBT is a widely researched and highly effective approach that focuses on the connection between thoughts, feelings, and behaviors. By identifying unhelpful thought patterns and learning to challenge and reframe them, clients develop practical coping skills that lead to lasting changes in mood and behavior. CBT is particularly effective for anxiety, depression, and stress-related concerns.'
+    },
+    'dbt': {
+      title: 'Dialectical Behavior Therapy (DBT)',
+      desc: 'DBT combines cognitive-behavioral techniques with mindfulness practices. Originally developed for individuals with intense emotions, it teaches four key skill sets: mindfulness, distress tolerance, emotion regulation, and interpersonal effectiveness. DBT helps clients accept themselves while also working toward meaningful change — balancing acceptance with the motivation to grow.'
+    },
+    'hypnotherapy': {
+      title: 'Hypnotherapy',
+      desc: 'Hypnotherapy uses guided relaxation and focused attention to achieve a heightened state of awareness and concentration. In this deeply relaxed state, clients can explore thoughts, feelings, and memories that may be hidden from their conscious mind. It can be helpful for managing stress, overcoming habits, reducing anxiety, and addressing a variety of emotional and behavioral concerns.'
+    },
+    'psychodynamic': {
+      title: 'Psychodynamic Therapy',
+      desc: 'Psychodynamic therapy explores how past experiences and unconscious processes influence current behavior and relationships. By understanding patterns that may have developed in childhood or earlier life stages, clients gain deeper self-awareness and insight. This approach helps uncover the root causes of emotional struggles, leading to more lasting and meaningful change.'
+    },
+    'strength-based': {
+      title: 'Strength-Based Therapy',
+      desc: 'Strength-Based therapy focuses on your existing strengths, resources, and resilience rather than concentrating solely on problems or deficits. This empowering approach recognizes that everyone has innate abilities and coping skills that can be built upon. By identifying and amplifying what is already working well, clients develop greater confidence and more effective strategies for overcoming challenges.'
+    },
+    'structural': {
+      title: 'Structural Family Therapy',
+      desc: 'Structural Family Therapy examines and reshapes the organization of the family — including boundaries, hierarchies, and subsystems. It helps families establish healthy structures where parents can effectively lead, children feel secure, and each member has an appropriate role. This approach is especially effective for families navigating transitions, conflicts, or challenges with children and adolescents.'
+    }
+  };
+
+  const approachDetail = document.getElementById('approach-detail');
+  const approachTitle = document.getElementById('approach-title');
+  const approachDesc = document.getElementById('approach-desc');
+  const approachClose = document.getElementById('approach-close');
+  const approachBtns = document.querySelectorAll('.approach-clickable');
+
+  if (approachDetail && approachBtns.length) {
+    approachBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-approach');
+        const data = approachData[key];
+        if (!data) return;
+
+        // If clicking the same one that's already open, close it
+        if (btn.classList.contains('active-approach') && !approachDetail.classList.contains('hidden')) {
+          approachDetail.classList.add('hidden');
+          btn.classList.remove('active-approach');
+          return;
+        }
+
+        // Remove active from all
+        approachBtns.forEach(b => b.classList.remove('active-approach'));
+
+        // Set active
+        btn.classList.add('active-approach');
+
+        // Populate and show
+        approachTitle.textContent = data.title;
+        approachDesc.textContent = data.desc;
+        approachDetail.classList.remove('hidden');
+
+        // Re-trigger animation
+        approachDetail.style.animation = 'none';
+        approachDetail.offsetHeight; // force reflow
+        approachDetail.style.animation = '';
+      });
+    });
+
+    // Close button
+    if (approachClose) {
+      approachClose.addEventListener('click', () => {
+        approachDetail.classList.add('hidden');
+        approachBtns.forEach(b => b.classList.remove('active-approach'));
+      });
+    }
+  }
+
   // ========== Contact Form ==========
   const form = document.getElementById('contact-form');
   const successMsg = document.getElementById('form-success');

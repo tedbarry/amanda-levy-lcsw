@@ -402,14 +402,28 @@
               </p>
 
               <h3 class="font-serif text-xl font-semibold text-sage-800 mt-10 mb-4">Therapeutic Approaches</h3>
-              <div class="flex flex-wrap gap-2">
-                <span class="approach-tag">Family Systems</span>
-                <span class="approach-tag">CBT</span>
-                <span class="approach-tag">DBT</span>
-                <span class="approach-tag">Hypnotherapy</span>
-                <span class="approach-tag">Psychodynamic</span>
-                <span class="approach-tag">Strength-Based</span>
-                <span class="approach-tag">Structural Family Therapy</span>
+              <p class="text-sm text-gray-500 mb-3">Click any approach to learn more:</p>
+              <div class="flex flex-wrap gap-2" id="approach-tags">
+                <button class="approach-tag approach-clickable" data-approach="family-systems">Family Systems</button>
+                <button class="approach-tag approach-clickable" data-approach="cbt">CBT</button>
+                <button class="approach-tag approach-clickable" data-approach="dbt">DBT</button>
+                <button class="approach-tag approach-clickable" data-approach="hypnotherapy">Hypnotherapy</button>
+                <button class="approach-tag approach-clickable" data-approach="psychodynamic">Psychodynamic</button>
+                <button class="approach-tag approach-clickable" data-approach="strength-based">Strength-Based</button>
+                <button class="approach-tag approach-clickable" data-approach="structural">Structural Family Therapy</button>
+              </div>
+
+              <!-- Approach Detail Panel -->
+              <div id="approach-detail" class="hidden mt-4 bg-sage-50 rounded-xl p-5 border border-sage-200 transition-all">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 id="approach-title" class="font-serif font-semibold text-sage-800 text-lg mb-2"></h4>
+                    <p id="approach-desc" class="text-gray-600 text-sm leading-relaxed"></p>
+                  </div>
+                  <button id="approach-close" class="text-sage-400 hover:text-sage-600 mt-1 flex-shrink-0" aria-label="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

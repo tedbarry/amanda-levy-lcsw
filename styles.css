@@ -66,6 +66,38 @@ body {
   background-color: #d4dac9;
 }
 
+.approach-clickable {
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.approach-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.approach-clickable.active-approach {
+  background-color: #60724d;
+  color: white;
+}
+
+/* Approach detail panel animation */
+#approach-detail {
+  animation: fadeSlideDown 0.25s ease-out;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ========== Specialty Cards ========== */
 .specialty-card {
   background: white;
