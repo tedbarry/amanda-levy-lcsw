@@ -28,7 +28,7 @@ export async function onRequestPost(context) {
     }
 
     // Generate token and expiry
-    const token = generateToken(64);
+    const token = generateToken(32);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString().replace('T', ' ').replace('Z', '');
 
     // Store token in database

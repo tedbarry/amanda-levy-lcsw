@@ -16,7 +16,7 @@ export async function onRequestGet(context) {
     }
 
     const result = await context.env.DB.prepare(`
-      UPDATE subscriptions SET active = 0, updated_at = datetime('now')
+      UPDATE subscriptions SET active = 0
       WHERE unsubscribe_token = ? AND active = 1
     `).bind(token).run();
 
