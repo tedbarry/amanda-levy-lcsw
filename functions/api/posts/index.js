@@ -51,26 +51,55 @@ export async function onRequestGet(context) {
     const countResult = await db.prepare(countSql).bind(...bindings).first();
     const total = countResult ? countResult.total : 0;
 
-    // Get paginated posts with comment counts
-    const listSql = `
-      SELECT
-        p.id,
-        p.slug,
-        p.title,
-        p.excerpt,
-        p.status,
-        p.published_at,
-        p.created_at,
-        COUNT(c.id) AS comment_count
-      FROM posts p
-      LEFT JOIN comments c ON c.post_id = p.id
-      ${whereClause}
-      GROUP BY p.id
-      ORDER BY COALESCE(p.published_at, p.created_at) DESC
-      LIMIT ? OFFSET ?
-    `;
+    // Get paginated posts with comment counts and favorite status
+    let listSql;
+    let listBindings;
 
-    const listBindings = [...bindings, limit, offset];
+    if (user) {
+      // Logged-in: include is_favorited via LEFT JOIN on favorites
+      listSql = `
+        SELECT
+          p.id,
+          p.slug,
+          p.title,
+          p.excerpt,
+          p.status,
+          p.published_at,
+          p.created_at,
+          COUNT(DISTINCT c.id) AS comment_count,
+          MAX(CASE WHEN f.user_id = ? THEN 1 ELSE 0 END) AS is_favorited
+        FROM posts p
+        LEFT JOIN comments c ON c.post_id = p.id
+        LEFT JOIN favorites f ON f.post_id = p.id AND f.user_id = ?
+        ${whereClause}
+        GROUP BY p.id
+        ORDER BY COALESCE(p.published_at, p.created_at) DESC
+        LIMIT ? OFFSET ?
+      `;
+      listBindings = [user.id, user.id, ...bindings, limit, offset];
+    } else {
+      // Not logged in: no favorite status needed
+      listSql = `
+        SELECT
+          p.id,
+          p.slug,
+          p.title,
+          p.excerpt,
+          p.status,
+          p.published_at,
+          p.created_at,
+          COUNT(c.id) AS comment_count,
+          0 AS is_favorited
+        FROM posts p
+        LEFT JOIN comments c ON c.post_id = p.id
+        ${whereClause}
+        GROUP BY p.id
+        ORDER BY COALESCE(p.published_at, p.created_at) DESC
+        LIMIT ? OFFSET ?
+      `;
+      listBindings = [...bindings, limit, offset];
+    }
+
     const { results: posts } = await db.prepare(listSql).bind(...listBindings).all();
 
     return json({

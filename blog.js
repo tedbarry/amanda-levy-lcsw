@@ -501,15 +501,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           // API is a toggle: POST /api/favorites/:postId
           const data = await apiFetch(`/api/favorites/${postId}`, { method: 'POST' });
-          if (data.favorited) {
-            btn.dataset.favorited = '1';
-            if (svg) { svg.classList.remove('text-gray-300'); svg.classList.add('text-red-500'); }
-          } else {
-            btn.dataset.favorited = '0';
-            if (svg) { svg.classList.remove('text-red-500'); svg.classList.add('text-gray-300'); }
-          }
+          btn.dataset.favorited = data.favorited ? '1' : '0';
+          updateFavoriteBtnUI(btn);
         } catch (err) {
-          // Silently fail — user can retry
+          console.error('Favorite toggle failed:', err);
         }
       });
     });
@@ -603,13 +598,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFavoriteBtnUI(btn) {
       if (!btn) return;
       const svg = btn.querySelector('svg');
+      const label = btn.querySelector('#post-favorite-text');
       if (!svg) return;
       if (btn.dataset.favorited === '1') {
         svg.classList.remove('text-gray-300');
         svg.classList.add('text-red-500');
+        if (label) { label.textContent = 'Favorited'; label.classList.remove('text-gray-400'); label.classList.add('text-red-400'); }
       } else {
         svg.classList.remove('text-red-500');
         svg.classList.add('text-gray-300');
+        if (label) { label.textContent = 'Favorite'; label.classList.remove('text-red-400'); label.classList.add('text-gray-400'); }
       }
     }
 
@@ -690,15 +688,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function initCommentForm(postId) {
       if (!commentForm) return;
 
-      // Show sign-in prompt if not logged in
+      const loginPrompt = document.getElementById('comment-login-prompt');
+      const postingAs = document.getElementById('comment-posting-as');
+
+      // Show sign-in prompt if not logged in, or form if logged in
       if (!currentUser) {
-        commentForm.innerHTML = `
-          <p class="text-gray-500 text-sm">
-            <a href="/login.html" class="text-sage-600 hover:text-sage-700 font-medium">Sign in</a> to leave a comment.
-          </p>
-        `;
+        if (loginPrompt) loginPrompt.classList.remove('hidden');
+        commentForm.classList.add('hidden');
         return;
       }
+
+      // User is logged in — hide prompt, show form
+      if (loginPrompt) loginPrompt.classList.add('hidden');
+      commentForm.classList.remove('hidden');
+      if (postingAs) postingAs.textContent = `Commenting as ${currentUser.display_name}`;
 
       commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();

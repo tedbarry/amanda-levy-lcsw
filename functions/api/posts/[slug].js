@@ -23,16 +23,32 @@ export async function onRequestGet(context) {
       return error('Post slug is required.', 400);
     }
 
-    // Fetch the post with its comment count
-    const post = await db.prepare(`
-      SELECT
-        p.*,
-        COUNT(c.id) AS comment_count
-      FROM posts p
-      LEFT JOIN comments c ON c.post_id = p.id
-      WHERE p.slug = ?
-      GROUP BY p.id
-    `).bind(slug).first();
+    // Fetch the post with its comment count and favorite status
+    let post;
+    if (user) {
+      post = await db.prepare(`
+        SELECT
+          p.*,
+          COUNT(DISTINCT c.id) AS comment_count,
+          MAX(CASE WHEN f.user_id = ? THEN 1 ELSE 0 END) AS is_favorited
+        FROM posts p
+        LEFT JOIN comments c ON c.post_id = p.id
+        LEFT JOIN favorites f ON f.post_id = p.id AND f.user_id = ?
+        WHERE p.slug = ?
+        GROUP BY p.id
+      `).bind(user.id, user.id, slug).first();
+    } else {
+      post = await db.prepare(`
+        SELECT
+          p.*,
+          COUNT(c.id) AS comment_count,
+          0 AS is_favorited
+        FROM posts p
+        LEFT JOIN comments c ON c.post_id = p.id
+        WHERE p.slug = ?
+        GROUP BY p.id
+      `).bind(slug).first();
+    }
 
     if (!post) {
       return error('Post not found.', 404);
