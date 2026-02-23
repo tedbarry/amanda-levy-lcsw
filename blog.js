@@ -499,17 +499,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const svg = btn.querySelector('svg');
 
         try {
-          if (isFav) {
-            await apiFetch(`/api/favorites/${postId}`, { method: 'DELETE' });
-            btn.dataset.favorited = '0';
-            if (svg) svg.classList.replace('text-red-500', 'text-gray-300');
-          } else {
-            await apiFetch('/api/favorites', {
-              method: 'POST',
-              body: JSON.stringify({ post_id: postId })
-            });
+          // API is a toggle: POST /api/favorites/:postId
+          const data = await apiFetch(`/api/favorites/${postId}`, { method: 'POST' });
+          if (data.favorited) {
             btn.dataset.favorited = '1';
-            if (svg) svg.classList.replace('text-gray-300', 'text-red-500');
+            if (svg) { svg.classList.remove('text-gray-300'); svg.classList.add('text-red-500'); }
+          } else {
+            btn.dataset.favorited = '0';
+            if (svg) { svg.classList.remove('text-red-500'); svg.classList.add('text-gray-300'); }
           }
         } catch (err) {
           // Silently fail — user can retry
@@ -1299,7 +1296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         favoritesList.querySelectorAll('.portal-unfavorite-btn').forEach(btn => {
           btn.addEventListener('click', async () => {
             try {
-              await apiFetch(`/api/favorites/${btn.dataset.postId}`, { method: 'DELETE' });
+              await apiFetch(`/api/favorites/${btn.dataset.postId}`, { method: 'POST' });
               btn.closest('.portal-favorite-item').remove();
               if (favoritesList.querySelectorAll('.portal-favorite-item').length === 0) {
                 favoritesList.innerHTML = '<p class="text-gray-500 py-4">No favorites yet. Heart a post to save it here!</p>';
