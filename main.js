@@ -4,6 +4,55 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ========== Hash Redirects for Old Bookmarks ==========
+  // Redirect legacy single-page anchors to new multi-page URLs
+  const hashRedirects = {
+    '#services': 'services.html',
+    '#fees': 'fees-faq.html',
+    '#faq': 'fees-faq.html#faq',
+    '#contact': 'contact.html'
+  };
+
+  const currentPath = window.location.pathname;
+  const isHome = currentPath === '/' || currentPath.endsWith('/index.html') || currentPath.endsWith('/index');
+
+  if (isHome && window.location.hash) {
+    const redirect = hashRedirects[window.location.hash];
+    if (redirect) {
+      window.location.replace(redirect);
+      return; // Stop executing — we're navigating away
+    }
+  }
+
+  // ========== Active Nav Link for Current Page ==========
+  const allNavLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const hash = window.location.hash;
+
+  allNavLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    let isActive = false;
+
+    if ((path === '' || path === 'index.html') && (href === '/' || href === '/#about')) {
+      // Home page: "Home" is active by default, "About" activates on scroll
+      if (href === '/') isActive = true;
+    } else if (path === 'services.html' && href === 'services.html') {
+      isActive = true;
+    } else if (path === 'fees-faq.html') {
+      if (hash === '#faq' && href === 'fees-faq.html#faq') {
+        isActive = true;
+      } else if (hash !== '#faq' && href === 'fees-faq.html') {
+        isActive = true;
+      }
+    } else if (path === 'contact.html' && href === 'contact.html') {
+      isActive = true;
+    }
+
+    if (isActive) {
+      link.classList.add('active');
+    }
+  });
+
   // ========== Current Year in Footer ==========
   const yearEl = document.getElementById('current-year');
   if (yearEl) {
@@ -52,30 +101,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', handleScroll, { passive: true });
 
-  // ========== Active Nav Link on Scroll ==========
+  // ========== Active Nav Link on Scroll (Home page only) ==========
   const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-link');
+  const navLinksScroll = document.querySelectorAll('.nav-link');
 
-  const updateActiveNav = () => {
-    const scrollPos = window.scrollY + 120;
+  if (isHome && sections.length) {
+    const updateActiveNav = () => {
+      const scrollPos = window.scrollY + 120;
 
-    sections.forEach(section => {
-      const top = section.offsetTop;
-      const height = section.offsetHeight;
-      const id = section.getAttribute('id');
+      sections.forEach(section => {
+        const top = section.offsetTop;
+        const height = section.offsetHeight;
+        const id = section.getAttribute('id');
 
-      if (scrollPos >= top && scrollPos < top + height) {
-        navLinks.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === '#' + id) {
-            link.classList.add('active');
-          }
-        });
-      }
-    });
-  };
+        if (scrollPos >= top && scrollPos < top + height) {
+          navLinksScroll.forEach(link => {
+            const href = link.getAttribute('href');
+            link.classList.remove('active');
+            // Map section IDs to new nav hrefs
+            if (id === 'home' && href === '/') {
+              link.classList.add('active');
+            } else if (id === 'about' && href === '/#about') {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    };
 
-  window.addEventListener('scroll', updateActiveNav, { passive: true });
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+  }
 
   // ========== FAQ Accordion ==========
   const faqItems = document.querySelectorAll('.faq-item');
