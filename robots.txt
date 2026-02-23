@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
+Disallow: /portal.html
+Disallow: /login.html
+Disallow: /api/
 
 Sitemap: https://amandalevylcsw.com/sitemap.xml

@@ -1,0 +1,18 @@
+# Block access to developer notes
+/DEV-NOTES.md
+  X-Robots-Tag: noindex
+  ! Access-Control-Allow-Origin
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+
+/portal.html
+  X-Robots-Tag: noindex, nofollow
+
+/login.html
+  X-Robots-Tag: noindex, nofollow
+
+/api/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Cache-Control: no-store

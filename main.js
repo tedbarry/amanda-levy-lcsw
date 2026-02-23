@@ -46,6 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (path === 'contact.html' && href === 'contact.html') {
       isActive = true;
+    } else if (path === 'blog.html' && href === 'blog.html') {
+      isActive = true;
+    } else if (path === 'post.html' && href === 'blog.html') {
+      isActive = true;
+    } else if (path === 'portal.html' && href === 'blog.html') {
+      isActive = true;
+    } else if (path === 'admin.html' && href === 'blog.html') {
+      isActive = true;
+    } else if (path === 'login.html' && href === 'blog.html') {
+      isActive = true;
     }
 
     if (isActive) {
