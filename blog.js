@@ -274,6 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const loadMoreBtn = document.getElementById('load-more-btn');
     const subscribeForm = document.getElementById('subscribe-form');
+    const postsLoading = document.getElementById('posts-loading');
+    const postsEmpty = document.getElementById('posts-empty');
 
     /**
      * Fetch and render posts
@@ -294,20 +296,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await apiFetch(url);
         const posts = data.posts || [];
 
+        // Hide loading spinner once data arrives
+        if (postsLoading) postsLoading.classList.add('hidden');
+
         // If this is page 1 (new search or initial load), clear grid
         if (page === 1) {
           postsGrid.innerHTML = '';
         }
 
         if (posts.length === 0 && page === 1) {
-          postsGrid.innerHTML = `
-            <div class="col-span-full text-center py-12">
-              <p class="text-gray-500 text-lg">No posts found.</p>
-              ${query ? '<p class="text-gray-400 text-sm mt-2">Try a different search term.</p>' : ''}
-            </div>
-          `;
+          // Show the empty state from HTML
+          postsGrid.classList.add('hidden');
+          if (postsEmpty) {
+            postsEmpty.classList.remove('hidden');
+            // Update message if search query is active
+            if (query) {
+              postsEmpty.innerHTML = `
+                <p class="text-gray-500 text-lg">No posts found.</p>
+                <p class="text-gray-400 text-sm mt-2">Try a different search term.</p>
+              `;
+            }
+          }
           hasMorePosts = false;
         } else {
+          // Ensure grid is visible and empty state is hidden
+          postsGrid.classList.remove('hidden');
+          if (postsEmpty) postsEmpty.classList.add('hidden');
+
           posts.forEach(post => {
             postsGrid.insertAdjacentHTML('beforeend', renderPostCard(post));
           });
@@ -318,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
         attachFavoriteHandlers(postsGrid);
 
       } catch (err) {
+        // Hide loading spinner on error too
+        if (postsLoading) postsLoading.classList.add('hidden');
+
         if (page === 1) {
           postsGrid.innerHTML = `
             <div class="col-span-full text-center py-12">
