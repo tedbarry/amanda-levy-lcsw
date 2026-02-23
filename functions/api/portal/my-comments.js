@@ -30,7 +30,7 @@ export async function onRequestGet(context) {
       post_slug: c.slug
     }));
 
-    return json(results);
+    return json({ comments: results });
 
   } catch (e) {
     console.error('GET /api/portal/my-comments error:', e);

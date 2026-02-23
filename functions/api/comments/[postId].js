@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
       created_at: c.created_at
     }));
 
-    return json(results);
+    return json({ comments: results });
 
   } catch (e) {
     console.error('GET /api/comments/:postId error:', e);
