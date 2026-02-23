@@ -20,7 +20,7 @@ export async function onRequestGet(context) {
       ORDER BY f.created_at DESC
     `).bind(user.id).all();
 
-    return json(favorites.results || []);
+    return json({ favorites: favorites.results || [] });
 
   } catch (e) {
     console.error('GET /api/favorites error:', e);
