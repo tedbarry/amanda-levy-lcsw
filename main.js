@@ -1,5 +1,5 @@
 /* ========================================
-   Amanda Berman Levy, LCSW — Main JS
+   Amanda Levy, LCSW — Main JS
    ======================================== */
 
 document.addEventListener('DOMContentLoaded', () => {

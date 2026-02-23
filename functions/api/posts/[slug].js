@@ -207,7 +207,7 @@ async function notifySubscribers(context, post) {
 
     // Get all active subscribers
     const { results: subscribers } = await db.prepare(
-      "SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'"
+      "SELECT id, email, unsubscribe_token FROM subscriptions WHERE active = 1"
     ).all();
 
     if (!subscribers || subscribers.length === 0) return;

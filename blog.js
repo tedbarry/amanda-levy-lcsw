@@ -1,5 +1,5 @@
 /* ========================================
-   Amanda Berman Levy, LCSW — Blog JS
+   Amanda Levy, LCSW — Blog JS
    Powers: blog.html, post.html, admin.html,
            portal.html, login.html
    ======================================== */
@@ -551,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postContent.innerHTML = post.content || '';
 
         // Update page title
-        document.title = `${post.title} | Amanda Berman Levy, LCSW`;
+        document.title = `${post.title} | Amanda Levy, LCSW`;
 
         // Favorite button
         if (postFavoriteBtn && currentUser) {

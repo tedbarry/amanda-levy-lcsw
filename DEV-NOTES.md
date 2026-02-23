@@ -1,4 +1,4 @@
-# Amanda Berman Levy, LCSW — Developer Notes
+# Amanda Levy, LCSW — Developer Notes
 
 > **Purpose:** This file provides context for any AI assistant or developer picking up work on this project. Keep it updated after every major change.
 
@@ -6,7 +6,7 @@
 
 ## Project Overview
 - **Site:** amandalevylcsw.com — Professional therapist website
-- **Owner:** Amanda Berman Levy, LCSW (Jackson, NJ)
+- **Owner:** Amanda Levy, LCSW (Jackson, NJ)
 - **Managed by:** Ted (son-in-law)
 - **Hosting:** Cloudflare Pages (auto-deploys from GitHub on push to `master`)
 - **Repo:** github.com/tedbarry/amanda-levy-lcsw (branch: `master`)

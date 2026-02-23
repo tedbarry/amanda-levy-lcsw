@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Portal | Amanda Berman Levy, LCSW</title>
+  <title>My Portal | Amanda Levy, LCSW</title>
   <meta name="description" content="Manage your profile, comments, and favorites on Amanda Levy's blog.">
   <meta name="robots" content="index, follow">
 
@@ -81,7 +81,7 @@
       <div class="flex items-center justify-between h-16 md:h-20">
         <!-- Logo / Name -->
         <a href="/" class="flex flex-col leading-tight">
-          <span class="font-serif text-lg md:text-xl font-semibold text-sage-800">Amanda Berman Levy</span>
+          <span class="font-serif text-lg md:text-xl font-semibold text-sage-800">Amanda Levy</span>
           <span class="text-xs md:text-sm text-sage-600 tracking-wide">LCSW &bull; Licensed Clinical Social Worker</span>
         </a>
 
@@ -145,7 +145,7 @@
     </section>
 
     <!-- ========== WELCOME BANNER ========== -->
-    <section id="welcome-banner" class="hidden py-4 bg-cream-50">
+    <section id="portal-welcome-banner" class="hidden py-4 bg-cream-50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6">
         <div class="bg-sage-50 rounded-2xl p-6 border border-sage-200">
           <h2 class="font-serif text-xl font-semibold text-sage-800 mb-2">Welcome!</h2>
@@ -157,17 +157,17 @@
     <!-- ========== PORTAL CONTENT ========== -->
     <section class="py-4 bg-cream-50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div id="portal-content">
+        <div id="portal-panel">
           <!-- Tabs -->
           <div class="flex border-b border-sage-200 mb-6 overflow-x-auto">
-            <button class="tab-btn active" data-tab="my-comments">My Comments</button>
-            <button class="tab-btn" data-tab="favorites">Favorites</button>
-            <button class="tab-btn" data-tab="profile">Profile</button>
-            <button class="tab-btn" data-tab="settings">Settings</button>
+            <button class="portal-tab-btn active" data-tab="my-comments">My Comments</button>
+            <button class="portal-tab-btn" data-tab="favorites">Favorites</button>
+            <button class="portal-tab-btn" data-tab="profile">Profile</button>
+            <button class="portal-tab-btn" data-tab="settings">Settings</button>
           </div>
 
           <!-- My Comments Tab -->
-          <div id="tab-my-comments" class="tab-content">
+          <div id="tab-my-comments" class="portal-tab-panel">
             <div id="portal-comments-list" class="space-y-3">
               <!-- Comment cards rendered by blog.js -->
             </div>
@@ -181,7 +181,7 @@
           </div>
 
           <!-- Favorites Tab -->
-          <div id="tab-favorites" class="tab-content hidden">
+          <div id="tab-favorites" class="portal-tab-panel hidden">
             <div id="portal-favorites-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Favorite post cards rendered by blog.js -->
             </div>
@@ -195,7 +195,7 @@
           </div>
 
           <!-- Profile Tab -->
-          <div id="tab-profile" class="tab-content hidden">
+          <div id="tab-profile" class="portal-tab-panel hidden">
             <div class="max-w-md">
               <div class="bg-white rounded-2xl border border-sage-100 p-6">
                 <h3 class="font-serif text-lg font-semibold text-sage-800 mb-4">Your Profile</h3>
@@ -229,7 +229,7 @@
           </div>
 
           <!-- Settings Tab -->
-          <div id="tab-settings" class="tab-content hidden">
+          <div id="tab-settings" class="portal-tab-panel hidden">
             <div class="max-w-md space-y-6">
               <!-- Subscription -->
               <div class="bg-white rounded-2xl border border-sage-100 p-6">
@@ -271,7 +271,7 @@
       <div class="grid md:grid-cols-3 gap-8 mb-8">
         <!-- Brand -->
         <div>
-          <h3 class="font-serif text-xl font-semibold mb-2">Amanda Berman Levy, LCSW</h3>
+          <h3 class="font-serif text-xl font-semibold mb-2">Amanda Levy, LCSW</h3>
           <p class="text-sage-300 text-sm mb-4">Licensed Clinical Social Worker</p>
           <p class="text-sage-400 text-sm leading-relaxed">Compassionate therapy for individuals, couples, and families. Licensed in New Jersey and New York with over 36 years of experience.</p>
         </div>
@@ -321,7 +321,7 @@
       </div>
 
       <div class="border-t border-sage-800 pt-8 text-center">
-        <p class="text-sage-500 text-sm">&copy; <span id="current-year"></span> Amanda Berman Levy, LCSW. All rights reserved.</p>
+        <p class="text-sage-500 text-sm">&copy; <span id="current-year"></span> Amanda Levy, LCSW. All rights reserved.</p>
         <p class="text-sage-600 text-xs mt-2">This website does not provide medical advice, diagnosis, or treatment. If you are in crisis, please call 988 (Suicide &amp; Crisis Lifeline) or go to your nearest emergency room.</p>
       </div>
     </div>

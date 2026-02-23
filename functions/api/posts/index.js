@@ -1,7 +1,7 @@
-// ========================================
+﻿// ========================================
 // /api/posts
-// GET  — List published posts (public, paginated)
-// POST — Create new post (admin only)
+// GET  â€” List published posts (public, paginated)
+// POST â€” Create new post (admin only)
 // ========================================
 
 import { json, error } from '../../_shared/response.js';
@@ -11,8 +11,8 @@ import { sendEmail, newPostEmail } from '../../_shared/email.js';
 
 // ----------------------------------------
 // GET /api/posts
-// Public — returns published posts
-// Admin with ?all=1 — includes drafts
+// Public â€” returns published posts
+// Admin with ?all=1 â€” includes drafts
 // ----------------------------------------
 export async function onRequestGet(context) {
   try {
@@ -91,7 +91,7 @@ export async function onRequestGet(context) {
 
 // ----------------------------------------
 // POST /api/posts
-// Admin only — create a new blog post
+// Admin only â€” create a new blog post
 // ----------------------------------------
 export async function onRequestPost(context) {
   try {
@@ -184,7 +184,7 @@ async function notifySubscribers(context, post) {
 
     // Get all active subscribers
     const { results: subscribers } = await db.prepare(
-      "SELECT id, email, unsubscribe_token FROM subscribers WHERE status = 'active'"
+      "SELECT id, email, unsubscribe_token FROM subscriptions WHERE active = 1"
     ).all();
 
     if (!subscribers || subscribers.length === 0) return;
