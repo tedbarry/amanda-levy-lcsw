@@ -756,13 +756,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
           const target = btn.dataset.tab;
 
-          // Update button active states
-          tabBtns.forEach(b => {
-            b.classList.remove('border-sage-600', 'text-sage-700');
-            b.classList.add('border-transparent', 'text-gray-500');
-          });
-          btn.classList.remove('border-transparent', 'text-gray-500');
-          btn.classList.add('border-sage-600', 'text-sage-700');
+          // Update button active states using .active CSS class
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
 
           // Show target panel, hide others
           tabPanels.forEach(panel => {
@@ -784,21 +780,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Posts Tab ---
 
     async function loadAdminPosts() {
-      const postsList = document.getElementById('admin-posts-list');
-      if (!postsList) return;
+      const postsGrid = document.getElementById('admin-posts-grid');
+      if (!postsGrid) return;
 
-      postsList.innerHTML = '<p class="text-gray-400 text-sm py-4">Loading posts...</p>';
+      postsGrid.innerHTML = '<p class="text-gray-400 text-sm py-4">Loading posts...</p>';
 
       try {
         const data = await apiFetch('/api/posts?all=1');
         const posts = data.posts || [];
 
         if (posts.length === 0) {
-          postsList.innerHTML = '<p class="text-gray-500 py-4">No posts yet. Create your first one!</p>';
+          postsGrid.innerHTML = '<p class="text-gray-500 py-4">No posts yet. Create your first one!</p>';
           return;
         }
 
-        postsList.innerHTML = posts.map(post => {
+        postsGrid.innerHTML = posts.map(post => {
           const date = formatDate(post.created_at);
           const title = escapeHtml(post.title || 'Untitled');
           const statusClass = post.status === 'published'
@@ -830,12 +826,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         // Attach edit handlers
-        postsList.querySelectorAll('.admin-edit-post-btn').forEach(btn => {
+        postsGrid.querySelectorAll('.admin-edit-post-btn').forEach(btn => {
           btn.addEventListener('click', () => openPostEditor(btn.dataset.slug));
         });
 
         // Attach delete handlers
-        postsList.querySelectorAll('.admin-delete-post-btn').forEach(btn => {
+        postsGrid.querySelectorAll('.admin-delete-post-btn').forEach(btn => {
           btn.addEventListener('click', async () => {
             if (!confirm(`Delete "${btn.dataset.title}"? This cannot be undone.`)) return;
             try {
@@ -848,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
       } catch (err) {
-        postsList.innerHTML = '<p class="text-red-600 py-4">Unable to load posts.</p>';
+        postsGrid.innerHTML = '<p class="text-red-600 py-4">Unable to load posts.</p>';
       }
     }
 
@@ -943,10 +939,14 @@ document.addEventListener('DOMContentLoaded', () => {
       editingSlug = null;
     }
 
-    // Cancel button
+    // Cancel buttons (top and bottom of editor)
     const editorCancelBtn = document.getElementById('editor-cancel-btn');
     if (editorCancelBtn) {
       editorCancelBtn.addEventListener('click', closePostEditor);
+    }
+    const editorCancelBtn2 = document.getElementById('editor-cancel-btn-2');
+    if (editorCancelBtn2) {
+      editorCancelBtn2.addEventListener('click', closePostEditor);
     }
 
     // Save button
@@ -1126,12 +1126,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabBtns = portalPanel.querySelectorAll('.portal-tab-btn');
       const tabPanels = portalPanel.querySelectorAll('.portal-tab-panel');
 
+      // Update button active states using .active CSS class
       tabBtns.forEach(b => {
-        b.classList.remove('border-sage-600', 'text-sage-700');
-        b.classList.add('border-transparent', 'text-gray-500');
+        b.classList.remove('active');
         if (b.dataset.tab === tabName) {
-          b.classList.remove('border-transparent', 'text-gray-500');
-          b.classList.add('border-sage-600', 'text-sage-700');
+          b.classList.add('active');
         }
       });
 
