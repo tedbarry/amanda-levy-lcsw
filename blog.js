@@ -532,6 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const postReadingTime = document.getElementById('post-reading-time');
     const postFavoriteBtn = document.getElementById('post-favorite-btn');
     const postNotFound = document.getElementById('post-not-found');
+    const postLoading = document.getElementById('post-loading');
+    const postArticle = document.getElementById('post-article');
     const commentsList = document.getElementById('comments-list');
     const commentForm = document.getElementById('comment-form');
     const subscribeForm = document.getElementById('subscribe-form');
@@ -545,9 +547,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showPostNotFound() {
+      if (postLoading) postLoading.classList.add('hidden');
+      if (postArticle) postArticle.classList.add('hidden');
       if (postNotFound) postNotFound.classList.remove('hidden');
-      if (postTitle) postTitle.textContent = 'Post Not Found';
-      if (postContent) postContent.innerHTML = '';
     }
 
     /**
@@ -561,6 +563,10 @@ document.addEventListener('DOMContentLoaded', () => {
           showPostNotFound();
           return;
         }
+
+        // Hide loading, show article
+        if (postLoading) postLoading.classList.add('hidden');
+        if (postArticle) postArticle.classList.remove('hidden');
 
         // Render post content
         postTitle.textContent = post.title || 'Untitled';
@@ -587,9 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initCommentForm(post.id);
 
       } catch (err) {
+        if (postLoading) postLoading.classList.add('hidden');
         if (err.message && err.message.includes('404')) {
           showPostNotFound();
         } else {
+          if (postArticle) postArticle.classList.remove('hidden');
           postContent.innerHTML = '<p class="text-red-600">Unable to load this post. Please try again later.</p>';
         }
       }
