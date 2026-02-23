@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
           posts.forEach(post => {
             postsGrid.insertAdjacentHTML('beforeend', renderPostCard(post));
           });
-          hasMorePosts = data.has_more || false;
+          hasMorePosts = (data.pagination && data.pagination.hasMore) || false;
         }
 
         // Attach favorite handlers to new cards
@@ -738,8 +738,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Initialize admin — verify auth and admin status
      */
     function initAdmin() {
-      if (!currentUser || !currentUser.is_admin) {
+      if (!currentUser) {
         window.location.href = '/login.html';
+        return;
+      }
+      if (!currentUser.is_admin) {
+        adminPanel.innerHTML = `
+          <div class="text-center py-16">
+            <p class="text-gray-500 text-lg mb-2">Access Denied</p>
+            <p class="text-gray-400 text-sm">You don't have admin privileges.</p>
+            <a href="/blog.html" class="inline-block mt-4 text-sage-600 hover:text-sage-700 font-medium text-sm">← Back to Blog</a>
+          </div>
+        `;
         return;
       }
 

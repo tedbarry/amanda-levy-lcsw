@@ -212,11 +212,11 @@ async function notifySubscribers(context, post) {
 
     if (!subscribers || subscribers.length === 0) return;
 
-    const postUrl = `${siteUrl}/blog/${post.slug}`;
+    const postUrl = `${siteUrl}/post.html?slug=${encodeURIComponent(post.slug)}`;
 
     // Send emails in parallel
     const emailPromises = subscribers.map(sub => {
-      const unsubscribeUrl = `${siteUrl}/api/subscribers/unsubscribe?token=${sub.unsubscribe_token}`;
+      const unsubscribeUrl = `${siteUrl}/api/unsubscribe?token=${sub.unsubscribe_token}`;
       const emailHtml = newPostEmail(
         post.title,
         post.excerpt || '',

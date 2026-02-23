@@ -38,6 +38,10 @@ export async function onRequestGet(context) {
 
     let isNewUser = false;
 
+    // Check if this email is the admin email
+    const adminEmail = (context.env.ADMIN_EMAIL || '').toLowerCase();
+    const isAdminEmail = authToken.email === adminEmail;
+
     if (!user) {
       // Create new user — display name from email prefix
       const displayName = authToken.email.split('@')[0].substring(0, 30);
@@ -45,12 +49,18 @@ export async function onRequestGet(context) {
 
       await context.env.DB.prepare(`
         INSERT INTO users (email, display_name, is_admin)
-        VALUES (?, ?, 0)
-      `).bind(authToken.email, displayName).run();
+        VALUES (?, ?, ?)
+      `).bind(authToken.email, displayName, isAdminEmail ? 1 : 0).run();
 
       user = await context.env.DB.prepare(
         'SELECT * FROM users WHERE email = ?'
       ).bind(authToken.email).first();
+    } else if (isAdminEmail && !user.is_admin) {
+      // Auto-promote admin email if not already admin
+      await context.env.DB.prepare(
+        'UPDATE users SET is_admin = 1 WHERE id = ?'
+      ).bind(user.id).run();
+      user.is_admin = 1;
     }
 
     // Create session (30-day expiry)
