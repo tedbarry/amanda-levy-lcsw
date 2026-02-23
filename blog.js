@@ -169,11 +169,16 @@ document.addEventListener('DOMContentLoaded', () => {
    * Fetch current user on page load
    */
   async function initAuth() {
-    try {
-      const data = await apiFetch('/api/auth/me');
-      currentUser = data.user || null;
-    } catch (e) {
-      currentUser = null;
+    // Check if main.js already fetched the user
+    if (window.__currentUser !== undefined) {
+      currentUser = window.__currentUser;
+    } else {
+      try {
+        const data = await apiFetch('/api/auth/me');
+        currentUser = data.user || null;
+      } catch (e) {
+        currentUser = null;
+      }
     }
     updateAuthUI();
   }
@@ -474,8 +479,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ========================================================
-  //  3c. SHARED: Favorite Toggle Handler
+  //  3c. SHARED: Favorite Toggle Handler + UI Update
   // ========================================================
+
+  /**
+   * Update favorite button visual state (works for both blog listing cards and post page)
+   */
+  function updateFavoriteBtnUI(btn) {
+    if (!btn) return;
+    const svg = btn.querySelector('svg');
+    const label = btn.querySelector('#post-favorite-text');
+    if (!svg) return;
+    if (btn.dataset.favorited === '1') {
+      svg.classList.remove('text-gray-300');
+      svg.classList.add('text-red-500');
+      if (label) { label.textContent = 'Favorited'; label.classList.remove('text-gray-400'); label.classList.add('text-red-400'); }
+    } else {
+      svg.classList.remove('text-red-500');
+      svg.classList.add('text-gray-300');
+      if (label) { label.textContent = 'Favorite'; label.classList.remove('text-red-400'); label.classList.add('text-gray-400'); }
+    }
+  }
 
   function attachFavoriteHandlers(container) {
     if (!container) return;
@@ -495,8 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const postId = btn.dataset.postId;
-        const isFav = btn.dataset.favorited === '1';
-        const svg = btn.querySelector('svg');
+
+        // Instant UI update
+        const wasFav = btn.dataset.favorited === '1';
+        btn.dataset.favorited = wasFav ? '0' : '1';
+        updateFavoriteBtnUI(btn);
 
         try {
           // API is a toggle: POST /api/favorites/:postId
@@ -504,6 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.dataset.favorited = data.favorited ? '1' : '0';
           updateFavoriteBtnUI(btn);
         } catch (err) {
+          // Revert on error
+          btn.dataset.favorited = wasFav ? '1' : '0';
+          updateFavoriteBtnUI(btn);
           console.error('Favorite toggle failed:', err);
         }
       });
@@ -532,6 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('slug');
+    let currentPostId = null;
 
     if (!slug) {
       showPostNotFound();
@@ -556,6 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        currentPostId = post.id;
+
         // Hide loading, show article
         if (postLoading) postLoading.classList.add('hidden');
         if (postArticle) postArticle.classList.remove('hidden');
@@ -564,7 +597,13 @@ document.addEventListener('DOMContentLoaded', () => {
         postTitle.textContent = post.title || 'Untitled';
         if (postDate) postDate.textContent = formatDate(post.published_at || post.created_at);
         if (postReadingTime) postReadingTime.textContent = calcReadingTime(post.content);
-        postContent.innerHTML = post.content || '';
+
+        // Use DOMPurify if available, otherwise fall back to raw HTML
+        if (typeof DOMPurify !== 'undefined') {
+          postContent.innerHTML = DOMPurify.sanitize(post.content || '');
+        } else {
+          postContent.innerHTML = post.content || '';
+        }
 
         // Update page title
         document.title = `${post.title} | Amanda Levy, LCSW`;
@@ -595,24 +634,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    function updateFavoriteBtnUI(btn) {
-      if (!btn) return;
-      const svg = btn.querySelector('svg');
-      const label = btn.querySelector('#post-favorite-text');
-      if (!svg) return;
-      if (btn.dataset.favorited === '1') {
-        svg.classList.remove('text-gray-300');
-        svg.classList.add('text-red-500');
-        if (label) { label.textContent = 'Favorited'; label.classList.remove('text-gray-400'); label.classList.add('text-red-400'); }
-      } else {
-        svg.classList.remove('text-red-500');
-        svg.classList.add('text-gray-300');
-        if (label) { label.textContent = 'Favorite'; label.classList.remove('text-red-400'); label.classList.add('text-gray-400'); }
-      }
-    }
-
     /**
-     * Load comments for a post
+     * Load comments for a post (threaded, with likes)
      */
     async function loadComments(postId) {
       if (!commentsList) return;
@@ -626,26 +649,31 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        commentsList.innerHTML = comments.map(c => renderComment(c)).join('');
-
-        // Attach delete handlers
-        commentsList.querySelectorAll('.comment-delete-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (!confirm('Are you sure you want to delete this comment?')) return;
-
-            try {
-              await apiFetch(`/api/comments/${btn.dataset.commentId}`, { method: 'DELETE' });
-              btn.closest('.comment-item').remove();
-
-              // If no comments left, show placeholder
-              if (commentsList.querySelectorAll('.comment-item').length === 0) {
-                commentsList.innerHTML = '<p class="text-gray-400 text-sm italic">No comments yet. Be the first to share your thoughts!</p>';
-              }
-            } catch (err) {
-              alert('Could not delete comment. Please try again.');
-            }
-          });
+        // Separate top-level and replies
+        const topLevel = comments.filter(c => !c.parent_id);
+        const replies = comments.filter(c => c.parent_id);
+        const replyMap = {};
+        replies.forEach(r => {
+          if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+          replyMap[r.parent_id].push(r);
         });
+
+        let html = '';
+        topLevel.forEach(c => {
+          html += renderComment(c, false);
+          if (replyMap[c.id]) {
+            replyMap[c.id].forEach(r => {
+              html += renderComment(r, true);
+            });
+          }
+        });
+
+        commentsList.innerHTML = html;
+
+        // Attach handlers
+        attachCommentDeleteHandlers(commentsList, postId);
+        attachCommentReplyHandlers(commentsList, postId);
+        attachCommentLikeHandlers(commentsList);
 
       } catch (err) {
         commentsList.innerHTML = '<p class="text-gray-500 text-sm">Unable to load comments.</p>';
@@ -653,13 +681,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Render a single comment as HTML
+     * Render a single comment as HTML (supports replies and likes)
      */
-    function renderComment(comment) {
+    function renderComment(comment, isReply) {
       const name = escapeHtml(comment.display_name || 'Anonymous');
       const text = escapeHtml(comment.content);
       const ago = timeAgo(comment.created_at);
       const isOwner = currentUser && (currentUser.id === comment.user_id || currentUser.is_admin);
+
+      const indentClass = isReply ? 'ml-8 border-l-2 border-sage-100 pl-4' : '';
+      const adminBadge = comment.is_admin_author ? '<span class="text-xs bg-sage-100 text-sage-700 px-1.5 py-0.5 rounded-full font-medium">Amanda</span>' : '';
 
       const deleteBtn = isOwner ? `
         <button class="comment-delete-btn text-gray-400 hover:text-red-500 text-xs transition-colors"
@@ -668,18 +699,187 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       ` : '';
 
+      // Reply button (only on top-level comments, only when logged in)
+      const replyBtn = (!isReply && currentUser) ? `
+        <button class="comment-reply-btn text-gray-400 hover:text-sage-600 text-xs transition-colors"
+                data-comment-id="${comment.id}" aria-label="Reply to comment">
+          Reply
+        </button>
+      ` : '';
+
+      // Like button
+      const likeCount = comment.like_count || 0;
+      const userLiked = comment.user_liked;
+      const likeColor = userLiked ? 'text-red-500' : 'text-gray-300';
+      const adminLikedBadge = comment.admin_liked ? '<span class="text-xs text-sage-600 font-medium">Amanda liked this</span>' : '';
+
+      const likeBtn = currentUser ? `
+        <button class="comment-like-btn flex items-center gap-1 transition-colors ${likeColor}"
+                data-comment-id="${comment.id}" data-liked="${userLiked ? '1' : '0'}" aria-label="Like comment">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span class="comment-like-count text-xs">${likeCount > 0 ? likeCount : ''}</span>
+        </button>
+      ` : (likeCount > 0 ? `<span class="text-gray-400 text-xs flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>${likeCount}</span>` : '');
+
       return `
-        <div class="comment-item border-b border-gray-100 py-4 last:border-0">
+        <div class="comment-item ${indentClass} py-4 ${isReply ? '' : 'border-b border-gray-100 last:border-0'}" data-comment-id="${comment.id}">
           <div class="flex items-center justify-between mb-1">
-            <span class="font-medium text-sage-800 text-sm">${name}</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-sage-800 text-sm">${name}</span>
+              ${adminBadge}
+            </div>
             <div class="flex items-center gap-3">
               <span class="text-gray-400 text-xs">${ago}</span>
+              ${replyBtn}
               ${deleteBtn}
             </div>
           </div>
           <p class="text-gray-600 text-sm leading-relaxed">${text}</p>
+          <div class="flex items-center gap-3 mt-1.5">
+            ${likeBtn}
+            ${adminLikedBadge}
+          </div>
+          <div class="comment-reply-form-container"></div>
         </div>
       `;
+    }
+
+    /**
+     * Attach delete handlers to comment delete buttons
+     */
+    function attachCommentDeleteHandlers(container, postId) {
+      container.querySelectorAll('.comment-delete-btn').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = '1';
+
+        btn.addEventListener('click', async () => {
+          if (!confirm('Are you sure you want to delete this comment?')) return;
+
+          try {
+            await apiFetch(`/api/comments/${btn.dataset.commentId}`, { method: 'DELETE' });
+            // Reload comments to properly handle reply cleanup
+            await loadComments(postId);
+          } catch (err) {
+            alert('Could not delete comment. Please try again.');
+          }
+        });
+      });
+    }
+
+    /**
+     * Attach reply handlers to comment reply buttons
+     */
+    function attachCommentReplyHandlers(container, postId) {
+      container.querySelectorAll('.comment-reply-btn').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = '1';
+
+        btn.addEventListener('click', () => {
+          const commentItem = btn.closest('.comment-item');
+          const formContainer = commentItem.querySelector('.comment-reply-form-container');
+          const commentId = btn.dataset.commentId;
+
+          // Toggle: if form already open, close it
+          if (formContainer.querySelector('form')) {
+            formContainer.innerHTML = '';
+            return;
+          }
+
+          // Close any other open reply forms
+          container.querySelectorAll('.comment-reply-form-container').forEach(c => c.innerHTML = '');
+
+          formContainer.innerHTML = `
+            <form class="mt-3 flex gap-2">
+              <input type="text" maxlength="2000" placeholder="Write a reply..."
+                class="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm">
+              <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-4 py-2 rounded-full text-xs transition-all whitespace-nowrap">Reply</button>
+            </form>
+          `;
+
+          const form = formContainer.querySelector('form');
+          const input = form.querySelector('input');
+          input.focus();
+
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = input.value.trim();
+            if (!content) return;
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+
+            try {
+              await apiFetch('/api/comments', {
+                method: 'POST',
+                body: JSON.stringify({
+                  parent_id: Number(commentId),
+                  content: content,
+                  is_anonymous: false
+                })
+              });
+
+              await loadComments(postId);
+            } catch (err) {
+              alert(err.message || 'Could not post reply.');
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Reply';
+            }
+          });
+        });
+      });
+    }
+
+    /**
+     * Attach like handlers to comment like buttons
+     */
+    function attachCommentLikeHandlers(container) {
+      container.querySelectorAll('.comment-like-btn').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = '1';
+
+        btn.addEventListener('click', async () => {
+          const commentId = btn.dataset.commentId;
+          const wasLiked = btn.dataset.liked === '1';
+          const countEl = btn.querySelector('.comment-like-count');
+          let count = parseInt(countEl.textContent) || 0;
+
+          // Instant UI update
+          if (wasLiked) {
+            btn.dataset.liked = '0';
+            btn.classList.remove('text-red-500');
+            btn.classList.add('text-gray-300');
+            count = Math.max(0, count - 1);
+          } else {
+            btn.dataset.liked = '1';
+            btn.classList.remove('text-gray-300');
+            btn.classList.add('text-red-500');
+            count++;
+          }
+          countEl.textContent = count > 0 ? count : '';
+
+          try {
+            await apiFetch(`/api/comments/like/${commentId}`, { method: 'POST' });
+          } catch (err) {
+            // Revert on error
+            if (wasLiked) {
+              btn.dataset.liked = '1';
+              btn.classList.add('text-red-500');
+              btn.classList.remove('text-gray-300');
+              count++;
+            } else {
+              btn.dataset.liked = '0';
+              btn.classList.add('text-gray-300');
+              btn.classList.remove('text-red-500');
+              count = Math.max(0, count - 1);
+            }
+            countEl.textContent = count > 0 ? count : '';
+            console.error('Like toggle failed:', err);
+          }
+        });
+      });
     }
 
     /**
@@ -1058,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // --- Comments Tab ---
+    // --- Comments Tab (with admin reply) ---
 
     async function loadAdminComments() {
       const commentsList = document.getElementById('admin-comments-list');
@@ -1080,22 +1280,33 @@ document.addEventListener('DOMContentLoaded', () => {
           const text = escapeHtml(c.content);
           const postTitle = escapeHtml(c.post_title || 'Unknown post');
           const ago = timeAgo(c.created_at);
+          const isReply = c.parent_id ? '<span class="text-xs text-gray-400 italic">(reply)</span>' : '';
 
           return `
-            <div class="admin-comment-item flex items-start gap-3 border-b border-gray-100 py-3 last:border-0">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                  <span class="font-medium text-sage-700">${name}</span>
-                  <span>on</span>
-                  <a href="post.html?slug=${encodeURIComponent(c.post_slug || '')}" class="text-sage-600 hover:text-sage-700 font-medium">${postTitle}</a>
-                  <span class="text-gray-400">${ago}</span>
+            <div class="admin-comment-item border-b border-gray-100 py-3 last:border-0">
+              <div class="flex items-start gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                    <span class="font-medium text-sage-700">${name}</span>
+                    ${isReply}
+                    <span>on</span>
+                    <a href="post.html?slug=${encodeURIComponent(c.post_slug || '')}" class="text-sage-600 hover:text-sage-700 font-medium">${postTitle}</a>
+                    <span class="text-gray-400">${ago}</span>
+                  </div>
+                  <p class="text-gray-600 text-sm leading-relaxed">${text}</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <button class="admin-reply-comment-btn text-sage-600 hover:text-sage-700 text-xs font-medium transition-colors"
+                            data-comment-id="${c.id}" data-post-id="${c.post_id}">
+                      Reply
+                    </button>
+                  </div>
+                  <div class="admin-reply-form-container"></div>
                 </div>
-                <p class="text-gray-600 text-sm leading-relaxed">${text}</p>
+                <button class="admin-delete-comment-btn text-gray-400 hover:text-red-500 text-xs transition-colors flex-shrink-0 px-2 py-1"
+                        data-comment-id="${c.id}" aria-label="Delete comment">
+                  Delete
+                </button>
               </div>
-              <button class="admin-delete-comment-btn text-gray-400 hover:text-red-500 text-xs transition-colors flex-shrink-0 px-2 py-1"
-                      data-comment-id="${c.id}" aria-label="Delete comment">
-                Delete
-              </button>
             </div>
           `;
         }).join('');
@@ -1113,6 +1324,64 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
               alert('Could not delete comment.');
             }
+          });
+        });
+
+        // Reply handlers
+        commentsList.querySelectorAll('.admin-reply-comment-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const commentItem = btn.closest('.admin-comment-item');
+            const formContainer = commentItem.querySelector('.admin-reply-form-container');
+            const commentId = btn.dataset.commentId;
+
+            // Toggle
+            if (formContainer.querySelector('form')) {
+              formContainer.innerHTML = '';
+              return;
+            }
+
+            // Close other reply forms
+            commentsList.querySelectorAll('.admin-reply-form-container').forEach(c => c.innerHTML = '');
+
+            formContainer.innerHTML = `
+              <form class="mt-2 flex gap-2">
+                <input type="text" maxlength="2000" placeholder="Write a reply as Amanda..."
+                  class="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm">
+                <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-4 py-2 rounded-full text-xs transition-all whitespace-nowrap">Reply</button>
+              </form>
+            `;
+
+            const form = formContainer.querySelector('form');
+            const input = form.querySelector('input');
+            input.focus();
+
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const content = input.value.trim();
+              if (!content) return;
+
+              const submitBtn = form.querySelector('button[type="submit"]');
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Posting...';
+
+              try {
+                await apiFetch('/api/comments', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    parent_id: Number(commentId),
+                    content: content,
+                    is_anonymous: false
+                  })
+                });
+
+                // Refresh comment list
+                loadAdminComments();
+              } catch (err) {
+                alert(err.message || 'Could not post reply.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Reply';
+              }
+            });
           });
         });
 
@@ -1233,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Load tab data
-      if (tabName === 'comments') loadPortalComments();
+      if (tabName === 'my-comments') loadPortalComments();
       if (tabName === 'favorites') loadPortalFavorites();
       if (tabName === 'profile') loadPortalProfile();
       if (tabName === 'settings') loadPortalSettings();

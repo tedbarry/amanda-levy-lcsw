@@ -1,6 +1,7 @@
 // ========================================
 // POST /api/comments
 // Create a new comment (auth required)
+// Supports threaded replies via parent_id
 // ========================================
 
 import { json, error } from '../../_shared/response.js';
@@ -14,7 +15,8 @@ export async function onRequestPost(context) {
     }
 
     const body = await context.request.json();
-    const { post_id, content, is_anonymous } = body;
+    const { content, is_anonymous } = body;
+    let { post_id, parent_id } = body;
 
     // Validate content
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
@@ -23,6 +25,25 @@ export async function onRequestPost(context) {
 
     if (content.length > 2000) {
       return error('Comment must be 2000 characters or fewer.');
+    }
+
+    // If parent_id is provided, validate and derive post_id from parent
+    if (parent_id) {
+      const parent = await context.env.DB.prepare(`
+        SELECT id, post_id, parent_id FROM comments WHERE id = ?
+      `).bind(parent_id).first();
+
+      if (!parent) {
+        return error('Parent comment not found.', 404);
+      }
+
+      // Flatten to 1-level nesting: if parent is itself a reply, use its parent_id
+      if (parent.parent_id) {
+        parent_id = parent.parent_id;
+      }
+
+      // Derive post_id from parent (so admin reply doesn't need to supply it)
+      post_id = parent.post_id;
     }
 
     // Validate post exists and is published
@@ -54,14 +75,16 @@ export async function onRequestPost(context) {
 
     // Insert comment
     const result = await context.env.DB.prepare(`
-      INSERT INTO comments (post_id, user_id, content, is_anonymous)
-      VALUES (?, ?, ?, ?)
-    `).bind(post_id, user.id, safeContent, anonFlag).run();
+      INSERT INTO comments (post_id, user_id, content, is_anonymous, parent_id)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(post_id, user.id, safeContent, anonFlag, parent_id || null).run();
 
     const commentId = result.meta?.last_row_id;
 
     return json({
       id: commentId,
+      post_id: post_id,
+      parent_id: parent_id || null,
       content: safeContent,
       display_name: anonFlag ? 'Anonymous' : user.display_name,
       is_anonymous: !!anonFlag,

@@ -4,10 +4,16 @@
 //
 // Responsibilities:
 // 1. Parse session cookie and attach user to context
-// 2. Add security headers to all responses
+// 2. CSRF origin checking for state-changing requests
+// 3. Add security headers to all responses
 // ========================================
 
 import { getUserFromSession, parseCookie } from './_shared/auth.js';
+
+const ALLOWED_ORIGINS = [
+  'https://amandalevylcsw.com',
+  'https://www.amandalevylcsw.com',
+];
 
 export async function onRequest(context) {
   // Parse session cookie from request
@@ -25,6 +31,29 @@ export async function onRequest(context) {
     }
   } else {
     context.data.user = null;
+  }
+
+  // CSRF origin checking for state-changing methods
+  const method = context.request.method.toUpperCase();
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+    const origin = context.request.headers.get('Origin');
+    const referer = context.request.headers.get('Referer');
+    const checkValue = origin || (referer ? new URL(referer).origin : null);
+
+    if (checkValue) {
+      const isAllowed = ALLOWED_ORIGINS.includes(checkValue) ||
+        checkValue.startsWith('http://localhost') ||
+        checkValue.startsWith('http://127.0.0.1');
+
+      if (!isAllowed) {
+        return new Response(JSON.stringify({ error: 'Forbidden: invalid origin.' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    // If neither Origin nor Referer is present, allow the request
+    // (some legitimate clients may not send these headers)
   }
 
   // Continue to the actual handler

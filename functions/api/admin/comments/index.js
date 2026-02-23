@@ -1,6 +1,7 @@
 // ========================================
 // GET /api/admin/comments
 // List all comments across all posts (admin only)
+// Includes parent_id and post_id for admin reply
 // ========================================
 
 import { json, error } from '../../../_shared/response.js';
@@ -14,7 +15,8 @@ export async function onRequestGet(context) {
 
     const comments = await context.env.DB.prepare(`
       SELECT c.id, c.content, c.is_anonymous, c.created_at,
-             u.display_name, u.email, c.user_id,
+             c.parent_id, c.post_id, c.user_id,
+             u.display_name, u.email,
              p.title AS post_title, p.slug AS post_slug
       FROM comments c
       JOIN users u ON c.user_id = u.id
@@ -29,8 +31,10 @@ export async function onRequestGet(context) {
       display_name: c.is_anonymous ? 'Anonymous' : c.display_name,
       is_anonymous: !!c.is_anonymous,
       user_email: c.email,
+      post_id: c.post_id,
       post_title: c.post_title,
       post_slug: c.post_slug,
+      parent_id: c.parent_id || null,
       created_at: c.created_at
     }));
 

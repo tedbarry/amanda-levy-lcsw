@@ -48,15 +48,27 @@ CREATE TABLE IF NOT EXISTS posts (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
--- Comments on posts
+-- Comments on posts (parent_id enables 1-level threaded replies)
 CREATE TABLE IF NOT EXISTS comments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   post_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   content TEXT NOT NULL,
   is_anonymous INTEGER DEFAULT 0,
+  parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Comment likes (one like per user per comment)
+CREATE TABLE IF NOT EXISTS comment_likes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  comment_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(comment_id, user_id),
+  FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -85,6 +97,8 @@ CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status, published_at);
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
 CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);
+CREATE INDEX IF NOT EXISTS idx_comment_likes_comment ON comment_likes(comment_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 CREATE INDEX IF NOT EXISTS idx_auth_tokens_token ON auth_tokens(token);

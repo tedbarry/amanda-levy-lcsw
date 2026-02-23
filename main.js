@@ -505,4 +505,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ========== Global Auth Check for Nav Links ==========
+  // Fetch current user and show/hide Portal/Admin nav links on all pages
+  (async function initGlobalNavAuth() {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      const user = (res.ok && data.user) ? data.user : null;
+
+      // Store for blog.js to reuse
+      window.__currentUser = user;
+
+      if (user) {
+        // Show portal link
+        const portalLinks = document.querySelectorAll('#nav-portal-link, #mobile-nav-portal-link');
+        portalLinks.forEach(el => el.classList.remove('hidden'));
+
+        // Show admin link if admin
+        if (user.is_admin) {
+          const adminLinks = document.querySelectorAll('#nav-admin-link, #mobile-nav-admin-link');
+          adminLinks.forEach(el => el.classList.remove('hidden'));
+        }
+      }
+    } catch (e) {
+      window.__currentUser = null;
+    }
+  })();
+
 });
