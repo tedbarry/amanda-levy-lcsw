@@ -55,7 +55,7 @@ export async function onRequestPost(context) {
     return json({ success: true, message: 'Magic link sent! Check your email.' });
 
   } catch (e) {
-    console.error('send-magic-link error:', e);
-    return error('Something went wrong. Please try again.', 500);
+    console.error('send-magic-link error:', e.message, e.stack);
+    return error('Something went wrong: ' + e.message, 500);
   }
 }

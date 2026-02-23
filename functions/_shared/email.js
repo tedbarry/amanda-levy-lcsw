@@ -25,6 +25,10 @@ export async function sendEmail(apiKey, { to, subject, html }) {
         html
       })
     });
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error('Resend API error:', res.status, errBody);
+    }
     return res.ok;
   } catch (e) {
     console.error('Email send failed:', e);
