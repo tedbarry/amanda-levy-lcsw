@@ -1,0 +1,21 @@
+{
+  "name": "amanda-levy-lcsw",
+  "private": true,
+  "scripts": {
+    "build:css": "postcss src/css/styles.css -o dist/styles.css",
+    "build:html": "eleventy",
+    "build:images": "node scripts/optimize-images.js",
+    "build": "npm run build:css && npm run build:html && npm run build:images",
+    "dev": "concurrently \"eleventy --serve\" \"postcss src/css/styles.css -o dist/styles.css --watch\""
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "cssnano": "^7.0.1",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
+    "sharp": "^0.33.3",
+    "tailwindcss": "^3.4.3"
+  }
+}

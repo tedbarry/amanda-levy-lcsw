@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ========================================
    Amanda Levy, LCSW — Custom Styles
    ======================================== */
@@ -682,6 +686,49 @@ textarea:focus-visible {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ========== Portal Tab Styles ========== */
+.portal-tab-btn {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.portal-tab-btn:hover {
+  color: #60724d;
+}
+
+.portal-tab-btn.active {
+  color: #4c5a3e;
+  border-bottom-color: #60724d;
+}
+
+/* ========== Admin Tab Styles ========== */
+.admin-tab-btn {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none;
+  cursor: pointer;
+}
+
+.admin-tab-btn:hover {
+  color: #60724d;
+}
+
+.admin-tab-btn.active {
+  color: #4c5a3e;
+  border-bottom-color: #60724d;
 }
 
 /* ========== Quill Editor Override (admin) ========== */

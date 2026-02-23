@@ -1,0 +1,192 @@
+---
+permalink: post.html
+---
+{% extends "base.njk" %}
+
+{% block title %}Blog Post | Amanda Levy, LCSW{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="Read this post on Amanda Levy's therapy blog.">
+  <meta name="keywords" content="therapist in Jackson NJ, LCSW Jackson NJ, telehealth therapist New Jersey, telehealth therapist New York, children special needs therapist NJ, couples therapist Jackson NJ, family therapist NJ, ADHD therapist NJ, anxiety therapist Jackson NJ">
+  <meta name="author" content="Amanda Levy, LCSW">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Amanda Levy, LCSW | Therapist in Jackson, NJ">
+  <meta property="og:description" content="Licensed clinical social worker with 36+ years of experience. Specializing in children with special needs, relationships, and personality disorders. In-person & telehealth.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://amandalevylcsw.com/post.html">
+  <meta property="og:url" content="https://amandalevylcsw.com/post.html">
+  <meta property="og:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+  <meta property="og:image:width" content="384">
+  <meta property="og:image:height" content="384">
+  <meta property="og:image:alt" content="Amanda Levy, LCSW — Therapist in Jackson, NJ">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Amanda Levy, LCSW | Therapist in Jackson, NJ">
+  <meta name="twitter:description" content="Licensed clinical social worker with 36+ years of experience. Specializing in children with special needs, relationships, and personality disorders. In-person & telehealth.">
+  <meta name="twitter:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+{% endblock %}
+
+{% block content %}
+  <main id="main-content">
+
+    <!-- Post Loading State -->
+    <div id="post-loading" class="text-center py-20">
+      <div class="inline-block w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin"></div>
+      <p class="text-gray-500 mt-3">Loading post...</p>
+    </div>
+
+    <!-- Post Not Found -->
+    <div id="post-not-found" class="hidden text-center py-20">
+      <h2 class="font-serif text-2xl text-sage-800 mb-3">Post Not Found</h2>
+      <p class="text-gray-500 mb-6">The post you're looking for doesn't exist or has been removed.</p>
+      <a href="/blog.html" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-3 rounded-full transition-all inline-block">Back to Blog</a>
+    </div>
+
+    <!-- Post Content Area (hidden until loaded) -->
+    <article id="post-article" class="hidden">
+      <section class="pt-24 md:pt-32 pb-12 bg-cream-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+          <!-- Back to blog -->
+          <a href="/blog.html" class="inline-flex items-center gap-2 text-sage-600 hover:text-sage-700 font-medium text-sm mb-8 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Back to Blog
+          </a>
+
+          <!-- Auth area (same as blog.html) -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4 text-sm">
+              <a id="auth-sign-in" href="/login.html" class="text-sage-600 hover:text-sage-700 font-medium transition-colors">Sign In</a>
+              <div id="auth-user-menu" class="hidden flex items-center gap-3">
+                <span class="text-sage-700">Hi, <span id="auth-user-name" class="font-medium"></span></span>
+                <a id="auth-portal-link" href="/portal.html" class="text-sage-600 hover:text-sage-700 font-medium">My Portal</a>
+                <a id="auth-admin-link" href="/admin.html" class="hidden text-sage-600 hover:text-sage-700 font-medium">Admin</a>
+                <button onclick="logout()" class="text-gray-400 hover:text-gray-600">Sign Out</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post Header -->
+          <h1 id="post-title" class="font-serif text-3xl md:text-4xl font-bold text-sage-900 mb-4"></h1>
+
+          <div class="flex items-center gap-4 text-sm text-gray-500 mb-8">
+            <span id="post-date"></span>
+            <span>&middot;</span>
+            <span id="post-reading-time"></span>
+            <button id="post-favorite-btn" class="favorite-btn hidden ml-auto flex items-center gap-1 hover:scale-110 transition-transform" title="Favorite this post">
+              <svg class="w-5 h-5 text-gray-300 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <span id="post-favorite-text" class="text-xs font-medium text-gray-400">Favorite</span>
+            </button>
+          </div>
+
+          <!-- Post Content (filled by blog.js) -->
+          <div id="post-content" class="post-content">
+            <!-- Rich text HTML rendered here -->
+          </div>
+
+          <!-- Share -->
+          <div class="mt-12 pt-6 border-t border-sage-100 flex items-center gap-4">
+            <span class="text-sm text-gray-500">Share this post:</span>
+            <button id="copy-link-btn" class="text-sage-600 hover:text-sage-700 text-sm font-medium flex items-center gap-1 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              Copy Link
+            </button>
+            <span id="copy-link-success" class="hidden text-sage-600 text-xs">Copied!</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Subscribe CTA -->
+      <section class="py-8 bg-cream-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+          <div class="bg-sage-50 rounded-2xl p-6 border border-sage-200 text-center">
+            <p class="text-sage-800 font-medium mb-3">Enjoying this post? Subscribe for more</p>
+            <form id="subscribe-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input type="email" id="subscribe-email" placeholder="Your email address" required
+                class="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm">
+              <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-3 rounded-full text-sm transition-all whitespace-nowrap">Subscribe</button>
+            </form>
+            <div id="subscribe-success" class="hidden mt-3 text-sage-700 text-sm font-medium">You're subscribed!</div>
+            <div id="subscribe-error" class="hidden mt-3 text-red-600 text-sm font-medium"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comments Section -->
+      <section class="py-8 bg-cream-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+          <div class="bg-white rounded-2xl border border-sage-100 p-6 md:p-8">
+            <h3 class="font-serif text-2xl font-semibold text-sage-800 mb-6">
+              Comments <span id="comment-count" class="text-sage-400 text-lg font-normal">(0)</span>
+            </h3>
+
+            <!-- Comment Form (shown when logged in, hidden otherwise) -->
+            <div id="comment-form-area">
+              <!-- Logged out state -->
+              <div id="comment-login-prompt" class="bg-sage-50 rounded-xl p-4 text-center mb-6">
+                <p class="text-sage-700 text-sm">
+                  <a href="/login.html" class="text-sage-600 hover:text-sage-700 font-medium underline">Sign in</a>
+                  to leave a comment
+                </p>
+              </div>
+
+              <!-- Logged in state (hidden by default) -->
+              <form id="comment-form" class="hidden mb-6">
+                <div class="mb-3">
+                  <textarea id="comment-content" rows="3" maxlength="2000" placeholder="Share your thoughts..."
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm resize-none"></textarea>
+                  <div class="flex items-center justify-between mt-2">
+                    <label class="flex items-center gap-2 text-sm text-gray-500 cursor-pointer">
+                      <input type="checkbox" id="comment-anonymous" class="rounded border-gray-300 text-sage-600 focus:ring-sage-500">
+                      Post as Anonymous
+                    </label>
+                    <span id="comment-char-count" class="text-xs text-gray-400">0 / 2000</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <p id="comment-posting-as" class="text-xs text-gray-400"></p>
+                  <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">
+                    Post Comment
+                  </button>
+                </div>
+                <div id="comment-error" class="hidden mt-3 text-red-600 text-sm"></div>
+              </form>
+            </div>
+
+            <!-- Comments List (filled by blog.js) -->
+            <div id="comments-list" class="space-y-4">
+              <!-- Comment cards rendered here -->
+            </div>
+
+            <!-- No comments state -->
+            <div id="comments-empty" class="hidden text-center py-6">
+              <p class="text-gray-400 text-sm">No comments yet. Be the first to share your thoughts!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Back to blog -->
+      <section class="pb-12 bg-cream-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <a href="/blog.html" class="border-2 border-sage-600 text-sage-700 hover:bg-sage-600 hover:text-white font-semibold px-8 py-3 rounded-full transition-all inline-block">
+            Back to Blog
+          </a>
+        </div>
+      </section>
+    </article>
+
+  </main>
+{% endblock %}
+
+{% block bodyScripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/blog.js?v=13"></script>
+{% endblock %}

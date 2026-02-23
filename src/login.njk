@@ -1,0 +1,115 @@
+---
+permalink: login.html
+---
+{% extends "base.njk" %}
+
+{% block title %}Sign In | Amanda Levy, LCSW{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="Sign in to Amanda Levy's blog to comment, favorite posts, and manage your profile.">
+  <meta name="keywords" content="therapist in Jackson NJ, LCSW Jackson NJ, telehealth therapist New Jersey, telehealth therapist New York, children special needs therapist NJ, couples therapist Jackson NJ, family therapist NJ, ADHD therapist NJ, anxiety therapist Jackson NJ">
+  <meta name="author" content="Amanda Levy, LCSW">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sign In | Amanda Levy, LCSW">
+  <meta property="og:description" content="Sign in to Amanda Levy's blog to comment, favorite posts, and manage your profile.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://amandalevylcsw.com/login.html">
+  <meta property="og:url" content="https://amandalevylcsw.com/login.html">
+  <meta property="og:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+  <meta property="og:image:width" content="384">
+  <meta property="og:image:height" content="384">
+  <meta property="og:image:alt" content="Amanda Levy, LCSW — Therapist in Jackson, NJ">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Sign In | Amanda Levy, LCSW">
+  <meta name="twitter:description" content="Sign in to Amanda Levy's blog to comment, favorite posts, and manage your profile.">
+  <meta name="twitter:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+{% endblock %}
+
+{% block content %}
+  <main id="main-content">
+
+    <!-- ========== SIGN IN SECTION ========== -->
+    <section class="pt-24 md:pt-32 pb-16 md:pb-24 bg-gradient-to-b from-sage-50/50 to-cream-50 min-h-[70vh]">
+      <div class="max-w-md mx-auto px-4 sm:px-6">
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-2xl border border-sage-100 p-8 shadow-sm">
+
+          <!-- Heading -->
+          <div class="text-center mb-8">
+            <h1 class="font-serif text-2xl md:text-3xl font-bold text-sage-900 mb-2">Sign In</h1>
+            <p class="text-gray-600 text-sm md:text-base">Enter your email to receive a magic sign-in link</p>
+            <div class="w-16 h-1 bg-sage-400 mx-auto rounded-full mt-4 mb-6"></div>
+          </div>
+
+          <!-- Login Form -->
+          <form id="login-form">
+            <div class="mb-4">
+              <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
+              <input
+                type="email"
+                id="login-email"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="you@example.com"
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700"
+              >
+            </div>
+            <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold w-full py-3 rounded-full transition-all mt-2">
+              Send Magic Link
+            </button>
+          </form>
+
+          <!-- Success Message (hidden by default) -->
+          <div id="login-success" class="hidden mt-6">
+            <div class="bg-sage-50 border border-sage-200 rounded-xl p-4 text-center">
+              <svg class="w-10 h-10 text-sage-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <h2 class="font-serif text-lg font-semibold text-sage-900 mb-1">Check your email!</h2>
+              <p class="text-gray-600 text-sm">We sent a sign-in link to <strong id="login-success-email" class="text-sage-700"></strong></p>
+              <p class="text-gray-500 text-xs mt-2">Link expires in 15 minutes</p>
+            </div>
+          </div>
+
+          <!-- Error Message (hidden by default) -->
+          <div id="login-error" class="hidden mt-6">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+              <p id="login-error-text" class="text-red-700 text-sm"></p>
+            </div>
+          </div>
+
+          <!-- Privacy Note -->
+          <div class="bg-sage-50 rounded-xl p-4 mt-6">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-sage-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <p class="text-gray-600 text-sm leading-relaxed">Your email is never shown publicly. You'll choose a display name after signing in.</p>
+            </div>
+          </div>
+
+          <!-- Blog Link -->
+          <div class="text-center mt-6">
+            <a href="/blog.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium transition-colors">Just browsing? View the blog &rarr;</a>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block bodyScripts %}
+  <script src="/blog.js?v=13"></script>
+{% endblock %}

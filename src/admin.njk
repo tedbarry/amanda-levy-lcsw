@@ -1,0 +1,166 @@
+---
+permalink: admin.html
+---
+{% extends "base.njk" %}
+
+{% block title %}Admin Dashboard | Amanda Levy, LCSW{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="Admin dashboard for Amanda Levy's blog.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://amandalevylcsw.com/admin.html">
+{% endblock %}
+
+{% block headStyles %}
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <main id="main-content">
+
+    <!-- ========== ADMIN HEADER ========== -->
+    <section class="pt-24 md:pt-32 pb-4 bg-cream-50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="font-serif text-2xl md:text-3xl font-bold text-sage-900">Admin Dashboard</h1>
+            <p class="text-gray-500 text-sm mt-1">Manage your blog posts, comments, and subscribers</p>
+          </div>
+          <a href="/blog.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium">View Blog &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ADMIN CONTENT ========== -->
+    <section class="py-4 bg-cream-50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div id="admin-panel">
+          <!-- Tabs -->
+          <div class="flex border-b border-sage-200 mb-6">
+            <button class="admin-tab-btn active" data-tab="posts">Posts</button>
+            <button class="admin-tab-btn" data-tab="comments">Comments</button>
+            <button class="admin-tab-btn" data-tab="subscribers">Subscribers</button>
+          </div>
+
+          <!-- Posts Tab -->
+          <div id="tab-posts" class="admin-tab-panel">
+            <!-- Post List View -->
+            <div id="admin-posts-list-view">
+              <div id="admin-posts-list">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="font-serif text-xl font-semibold text-sage-800">All Posts</h2>
+                <button id="admin-new-post-btn" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">
+                  + New Post
+                </button>
+              </div>
+              <div id="admin-posts-grid" class="space-y-3">
+                <!-- Post rows rendered by blog.js -->
+              </div>
+              <div id="admin-posts-empty" class="hidden text-center py-12 text-gray-400">
+                <p>No posts yet. Create your first post!</p>
+              </div>
+            </div>
+            </div>
+
+            <!-- Post Editor (hidden by default) -->
+            <div id="admin-post-editor" class="hidden">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="font-serif text-xl font-semibold text-sage-800" id="editor-heading">New Post</h2>
+                <button id="editor-cancel-btn" class="text-gray-500 hover:text-gray-700 text-sm font-medium">Cancel</button>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Title -->
+                <div>
+                  <label class="block text-sm font-medium text-sage-700 mb-1">Title</label>
+                  <input type="text" id="editor-title" placeholder="Post title..."
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 font-serif text-xl">
+                </div>
+
+                <!-- Slug -->
+                <div>
+                  <label class="block text-sm font-medium text-sage-700 mb-1">Slug (URL path)</label>
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-400 text-sm">/post.html?slug=</span>
+                    <input type="text" id="editor-slug" placeholder="auto-generated"
+                      class="flex-1 px-4 py-2 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm">
+                  </div>
+                </div>
+
+                <!-- Excerpt -->
+                <div>
+                  <label class="block text-sm font-medium text-sage-700 mb-1">Excerpt (preview text)</label>
+                  <textarea id="editor-excerpt" rows="2" placeholder="Brief description shown on the blog listing..."
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm resize-none"></textarea>
+                </div>
+
+                <!-- Content (Quill editor) -->
+                <div>
+                  <label class="block text-sm font-medium text-sage-700 mb-1">Content</label>
+                  <div id="editor-content" class="bg-white rounded-xl border border-gray-200" style="min-height: 300px;"></div>
+                </div>
+
+                <!-- Status -->
+                <div class="flex items-center gap-4">
+                  <label class="block text-sm font-medium text-sage-700">Status:</label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="editor-status" class="text-sage-600 focus:ring-sage-500 rounded">
+                    <span class="text-sm text-gray-700">Published</span>
+                  </label>
+                  <span class="text-xs text-gray-400">(unchecked = Draft)</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-between pt-4 border-t border-sage-100">
+                  <button id="editor-delete-btn" class="hidden text-red-500 hover:text-red-700 text-sm font-medium">Delete Post</button>
+                  <div class="flex items-center gap-3 ml-auto">
+                    <button id="editor-cancel-btn-2" class="text-gray-500 hover:text-gray-700 font-medium px-6 py-2 text-sm">Cancel</button>
+                    <button id="editor-save-btn" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-8 py-2 rounded-full text-sm transition-all">
+                      Save Post
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Editor messages -->
+                <div id="editor-success" class="hidden p-3 bg-sage-50 border border-sage-200 rounded-xl text-sage-700 text-sm font-medium text-center"></div>
+                <div id="editor-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium text-center"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments Tab -->
+          <div id="tab-comments" class="admin-tab-panel hidden">
+            <h2 class="font-serif text-xl font-semibold text-sage-800 mb-4">Comment Moderation</h2>
+            <div id="admin-comments-list" class="space-y-3">
+              <!-- Comment cards rendered by blog.js -->
+            </div>
+            <div id="admin-comments-empty" class="hidden text-center py-12 text-gray-400">
+              <p>No comments to moderate.</p>
+            </div>
+          </div>
+
+          <!-- Subscribers Tab -->
+          <div id="tab-subscribers" class="admin-tab-panel hidden">
+            <h2 class="font-serif text-xl font-semibold text-sage-800 mb-4">
+              Subscribers <span id="subscriber-count" class="text-sage-400 text-lg font-normal"></span>
+            </h2>
+            <div id="admin-subscribers-list" class="space-y-2">
+              <!-- Subscriber rows rendered by blog.js -->
+            </div>
+            <div id="admin-subscribers-empty" class="hidden text-center py-12 text-gray-400">
+              <p>No subscribers yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block bodyScripts %}
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="/blog.js?v=13"></script>
+{% endblock %}

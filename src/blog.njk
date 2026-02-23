@@ -1,0 +1,124 @@
+---
+permalink: blog.html
+---
+{% extends "base.njk" %}
+
+{% block title %}Blog | Amanda Levy, LCSW{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="Read Amanda Levy's blog on therapy, mental health, and personal growth. Tips, insights, and reflections from a licensed clinical social worker.">
+  <meta name="keywords" content="therapy blog, mental health blog, therapist blog NJ, personal growth, LCSW blog, Amanda Levy blog">
+  <meta name="author" content="Amanda Levy, LCSW">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Blog | Amanda Levy, LCSW">
+  <meta property="og:description" content="Read Amanda Levy's blog on therapy, mental health, and personal growth. Tips, insights, and reflections from a licensed clinical social worker.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://amandalevylcsw.com/blog.html">
+  <meta property="og:url" content="https://amandalevylcsw.com/blog.html">
+  <meta property="og:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+  <meta property="og:image:width" content="384">
+  <meta property="og:image:height" content="384">
+  <meta property="og:image:alt" content="Amanda Levy, LCSW — Therapist in Jackson, NJ">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Blog | Amanda Levy, LCSW">
+  <meta name="twitter:description" content="Read Amanda Levy's blog on therapy, mental health, and personal growth. Tips, insights, and reflections from a licensed clinical social worker.">
+  <meta name="twitter:image" content="https://amandalevylcsw.com/img/headshot.jpeg">
+{% endblock %}
+
+{% block content %}
+  <main id="main-content">
+
+    <!-- ========== BLOG HEADER ========== -->
+    <section class="pt-24 md:pt-32 pb-8 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <h1 class="font-serif text-3xl md:text-4xl font-bold text-sage-900 mb-4">Blog</h1>
+        <div class="w-16 h-1 bg-sage-400 mx-auto rounded-full mb-4"></div>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">Thoughts on therapy, mental health, and personal growth</p>
+
+        <!-- Auth area -->
+        <div class="mt-6 flex items-center justify-center gap-4">
+          <a id="auth-sign-in" href="/login.html" class="text-sage-600 hover:text-sage-700 font-medium text-sm transition-colors">Sign In</a>
+          <div id="auth-user-menu" class="hidden flex items-center gap-3">
+            <span class="text-sage-700 text-sm">Hi, <span id="auth-user-name" class="font-medium"></span></span>
+            <a id="auth-portal-link" href="/portal.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium">My Portal</a>
+            <a id="auth-admin-link" href="/admin.html" class="hidden text-sage-600 hover:text-sage-700 text-sm font-medium">Admin</a>
+            <button onclick="logout()" class="text-gray-400 hover:text-gray-600 text-sm">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SUBSCRIBE CTA ========== -->
+    <section class="py-6 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="bg-sage-50 rounded-2xl p-6 border border-sage-200 text-center">
+          <p class="text-sage-800 font-medium mb-3">Get notified when new posts are published</p>
+          <form id="subscribe-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input type="email" id="subscribe-email" placeholder="Your email address" required
+              class="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700 text-sm">
+            <button type="submit" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-3 rounded-full text-sm transition-all whitespace-nowrap">
+              Subscribe
+            </button>
+          </form>
+          <div id="subscribe-success" class="hidden mt-3 text-sage-700 text-sm font-medium">You're subscribed! Check your email for a welcome message.</div>
+          <div id="subscribe-error" class="hidden mt-3 text-red-600 text-sm font-medium"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SEARCH BAR ========== -->
+    <section class="py-4 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="search-input" placeholder="Search posts..."
+            class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700">
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POSTS GRID ========== -->
+    <section class="py-8 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <!-- Loading state -->
+        <div id="posts-loading" class="text-center py-12">
+          <div class="inline-block w-8 h-8 border-4 border-sage-200 border-t-sage-600 rounded-full animate-spin"></div>
+          <p class="text-gray-500 mt-3">Loading posts...</p>
+        </div>
+
+        <!-- Posts grid (filled by blog.js) -->
+        <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Post cards rendered here by JavaScript -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="posts-empty" class="hidden text-center py-16">
+          <div class="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-sage-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+          </div>
+          <h3 class="font-serif text-xl text-sage-800 mb-2">No posts yet</h3>
+          <p class="text-gray-500">Check back soon for new content!</p>
+        </div>
+
+        <!-- Load more button -->
+        <div id="load-more-area" class="hidden text-center mt-8">
+          <button id="load-more-btn" class="border-2 border-sage-600 text-sage-700 hover:bg-sage-600 hover:text-white font-semibold px-8 py-3 rounded-full transition-all">
+            Load More Posts
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block bodyScripts %}
+  <script src="/blog.js?v=13"></script>
+{% endblock %}

@@ -1,0 +1,159 @@
+---
+permalink: portal.html
+---
+{% extends "base.njk" %}
+
+{% block title %}My Portal | Amanda Levy, LCSW{% endblock %}
+
+{% block meta %}
+  <meta name="description" content="Manage your profile, comments, and favorites on Amanda Levy's blog.">
+  <meta name="robots" content="index, follow">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://amandalevylcsw.com/portal.html">
+{% endblock %}
+
+{% block content %}
+  <main id="main-content">
+
+    <!-- ========== PORTAL HEADER ========== -->
+    <section class="pt-24 md:pt-32 pb-4 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="font-serif text-2xl md:text-3xl font-bold text-sage-900">My Portal</h1>
+            <p class="text-gray-500 text-sm mt-1">Manage your comments, favorites, and profile</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="/blog.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium">Back to Blog</a>
+            <button onclick="logout()" class="text-gray-400 hover:text-gray-600 text-sm">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== WELCOME BANNER ========== -->
+    <section id="portal-welcome-banner" class="hidden py-4 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="bg-sage-50 rounded-2xl p-6 border border-sage-200">
+          <h2 class="font-serif text-xl font-semibold text-sage-800 mb-2">Welcome!</h2>
+          <p class="text-sage-700 text-sm">Please choose a display name below. This is how you'll appear on comments. You can always change it later.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PORTAL CONTENT ========== -->
+    <section class="py-4 bg-cream-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div id="portal-panel">
+          <!-- Tabs -->
+          <div class="flex border-b border-sage-200 mb-6 overflow-x-auto">
+            <button class="portal-tab-btn active" data-tab="my-comments">My Comments</button>
+            <button class="portal-tab-btn" data-tab="favorites">Favorites</button>
+            <button class="portal-tab-btn" data-tab="profile">Profile</button>
+            <button class="portal-tab-btn" data-tab="settings">Settings</button>
+          </div>
+
+          <!-- My Comments Tab -->
+          <div id="tab-my-comments" class="portal-tab-panel">
+            <div id="portal-comments-list" class="space-y-3">
+              <!-- Comment cards rendered by blog.js -->
+            </div>
+            <div id="portal-comments-empty" class="hidden text-center py-12">
+              <div class="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-sage-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+              <p class="text-gray-500 text-sm">You haven't commented on any posts yet.</p>
+              <a href="/blog.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium mt-2 inline-block">Browse the blog &rarr;</a>
+            </div>
+          </div>
+
+          <!-- Favorites Tab -->
+          <div id="tab-favorites" class="portal-tab-panel hidden">
+            <div id="portal-favorites-list" class="space-y-1">
+              <!-- Favorite post cards rendered by blog.js -->
+            </div>
+            <div id="portal-favorites-empty" class="hidden text-center py-12">
+              <div class="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-sage-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              </div>
+              <p class="text-gray-500 text-sm">You haven't favorited any posts yet.</p>
+              <a href="/blog.html" class="text-sage-600 hover:text-sage-700 text-sm font-medium mt-2 inline-block">Browse the blog to find posts you love &rarr;</a>
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div id="tab-profile" class="portal-tab-panel hidden">
+            <div class="max-w-md">
+              <div class="bg-white rounded-2xl border border-sage-100 p-6">
+                <h3 class="font-serif text-lg font-semibold text-sage-800 mb-4">Your Profile</h3>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-1">Display Name</label>
+                    <input type="text" id="profile-display-name" maxlength="50" placeholder="Your display name"
+                      class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-sage-400 focus:ring-2 focus:ring-sage-200 outline-none transition-all text-gray-700">
+                    <p class="text-xs text-gray-400 mt-1">This is how you'll appear on comments (1-50 characters)</p>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-sage-700 mb-1">Email</label>
+                    <input type="email" id="profile-email" disabled
+                      class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed">
+                    <p class="text-xs text-gray-400 mt-1">Your email is private and never shown publicly</p>
+                  </div>
+
+                  <button id="profile-save-btn" class="bg-sage-600 hover:bg-sage-700 text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">
+                    Save Profile
+                  </button>
+
+                  <div id="profile-success" class="hidden p-3 bg-sage-50 border border-sage-200 rounded-xl text-sage-700 text-sm font-medium text-center">
+                    Display name updated!
+                  </div>
+                  <div id="profile-error" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium text-center"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settings Tab -->
+          <div id="tab-settings" class="portal-tab-panel hidden">
+            <div class="max-w-md space-y-6">
+              <!-- Subscription -->
+              <div class="bg-white rounded-2xl border border-sage-100 p-6">
+                <h3 class="font-serif text-lg font-semibold text-sage-800 mb-3">Email Notifications</h3>
+                <div id="settings-subscription">
+                  <p id="settings-sub-status" class="text-gray-600 text-sm mb-3"></p>
+                  <button id="settings-sub-toggle" class="border-2 border-sage-600 text-sage-700 hover:bg-sage-600 hover:text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">
+                  </button>
+                </div>
+              </div>
+
+              <!-- Danger Zone -->
+              <div class="bg-white rounded-2xl border border-red-200 p-6">
+                <h3 class="font-serif text-lg font-semibold text-red-700 mb-2">Danger Zone</h3>
+                <p class="text-gray-500 text-sm mb-4">This will permanently delete your account, all your comments, and favorites. This action cannot be undone.</p>
+                <button id="delete-account-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">
+                  Delete My Account
+                </button>
+                <!-- Confirmation (hidden) -->
+                <div id="delete-confirm" class="hidden mt-4 p-4 bg-red-50 rounded-xl border border-red-200">
+                  <p class="text-red-700 text-sm font-medium mb-3">Are you absolutely sure? This cannot be undone.</p>
+                  <div class="flex gap-3">
+                    <button id="delete-confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-full text-sm transition-all">Yes, Delete Everything</button>
+                    <button id="delete-confirm-no" class="text-gray-500 hover:text-gray-700 text-sm font-medium">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block bodyScripts %}
+  <script src="/blog.js?v=13"></script>
+{% endblock %}
