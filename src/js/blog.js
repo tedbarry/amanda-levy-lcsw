@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!confirm('Are you sure you want to delete this comment?')) return;
 
           try {
-            await apiFetch(`/api/comments/${btn.dataset.commentId}`, { method: 'DELETE' });
+            await apiFetch(`/api/comments/delete/${btn.dataset.commentId}`, { method: 'DELETE' });
             // Reload comments to properly handle reply cleanup
             await loadComments(postId);
           } catch (err) {
@@ -1563,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.addEventListener('click', async () => {
             if (!confirm('Delete this comment?')) return;
             try {
-              await apiFetch(`/api/comments/${btn.dataset.commentId}`, { method: 'DELETE' });
+              await apiFetch(`/api/comments/delete/${btn.dataset.commentId}`, { method: 'DELETE' });
               btn.closest('.portal-comment-item').remove();
               if (commentsList.querySelectorAll('.portal-comment-item').length === 0) {
                 commentsList.innerHTML = '<p class="text-gray-500 py-4">You haven\'t left any comments yet.</p>';
