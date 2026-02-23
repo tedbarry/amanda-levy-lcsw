@@ -28,11 +28,13 @@ export async function sendEmail(apiKey, { to, subject, html }) {
     if (!res.ok) {
       const errBody = await res.text();
       console.error('Resend API error:', res.status, errBody);
+      // Temporarily return error details for debugging
+      return { ok: false, status: res.status, detail: errBody, keyPrefix: apiKey ? apiKey.substring(0, 6) : 'MISSING' };
     }
-    return res.ok;
+    return true;
   } catch (e) {
     console.error('Email send failed:', e);
-    return false;
+    return { ok: false, detail: e.message, keyPrefix: apiKey ? apiKey.substring(0, 6) : 'MISSING' };
   }
 }
 

@@ -48,8 +48,10 @@ export async function onRequestPost(context) {
       html: magicLinkEmail(verifyUrl)
     });
 
-    if (!sent) {
-      return error('Unable to send email. Please try again.', 500);
+    if (sent !== true) {
+      // Debug: return the actual Resend error
+      const detail = typeof sent === 'object' ? JSON.stringify(sent) : 'unknown';
+      return error('Email failed: ' + detail, 500);
     }
 
     return json({ success: true, message: 'Magic link sent! Check your email.' });
