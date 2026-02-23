@@ -1064,7 +1064,61 @@ document.addEventListener('DOMContentLoaded', () => {
       const commentsList = document.getElementById('admin-comments-list');
       if (!commentsList) return;
 
-      commentsList.innerHTML = '<p class="text-gray-400 text-sm py-4 italic">Comment management will be added in Phase 4.</p>';
+      commentsList.innerHTML = '<p class="text-gray-400 text-sm py-4">Loading comments...</p>';
+
+      try {
+        const data = await apiFetch('/api/admin/comments');
+        const comments = data.comments || [];
+
+        if (comments.length === 0) {
+          commentsList.innerHTML = '<p class="text-gray-500 py-4">No comments yet.</p>';
+          return;
+        }
+
+        commentsList.innerHTML = comments.map(c => {
+          const name = escapeHtml(c.display_name || 'Anonymous');
+          const text = escapeHtml(c.content);
+          const postTitle = escapeHtml(c.post_title || 'Unknown post');
+          const ago = timeAgo(c.created_at);
+
+          return `
+            <div class="admin-comment-item flex items-start gap-3 border-b border-gray-100 py-3 last:border-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                  <span class="font-medium text-sage-700">${name}</span>
+                  <span>on</span>
+                  <a href="post.html?slug=${encodeURIComponent(c.post_slug || '')}" class="text-sage-600 hover:text-sage-700 font-medium">${postTitle}</a>
+                  <span class="text-gray-400">${ago}</span>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">${text}</p>
+              </div>
+              <button class="admin-delete-comment-btn text-gray-400 hover:text-red-500 text-xs transition-colors flex-shrink-0 px-2 py-1"
+                      data-comment-id="${c.id}" aria-label="Delete comment">
+                Delete
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        // Delete handlers
+        commentsList.querySelectorAll('.admin-delete-comment-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Delete this comment?')) return;
+            try {
+              await apiFetch(`/api/admin/comments/${btn.dataset.commentId}`, { method: 'DELETE' });
+              btn.closest('.admin-comment-item').remove();
+              if (commentsList.querySelectorAll('.admin-comment-item').length === 0) {
+                commentsList.innerHTML = '<p class="text-gray-500 py-4">No comments yet.</p>';
+              }
+            } catch (err) {
+              alert('Could not delete comment.');
+            }
+          });
+        });
+
+      } catch (err) {
+        commentsList.innerHTML = '<p class="text-red-600 py-4">Unable to load comments.</p>';
+      }
     }
 
     // --- Subscribers Tab ---
